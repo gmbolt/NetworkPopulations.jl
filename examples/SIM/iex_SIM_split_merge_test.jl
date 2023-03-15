@@ -1,21 +1,21 @@
-using InteractionNetworkModels, StructuredDistances, Plots, Distributions
+using NetworkPopulations, StructuredDistances, Plots, Distributions
 
 # Testing sampler
 # ---------------
 
-E = [[1,2,1,2],
-    [1,2,1],
-    [3,4,3], 
-    [3,4], 
-    [1,2], 
-    [1,2,1],
-    [1,2,3],
-    [4,5],
-    [7,8]]
+E = [[1, 2, 1, 2],
+    [1, 2, 1],
+    [3, 4, 3],
+    [3, 4],
+    [1, 2],
+    [1, 2, 1],
+    [1, 2, 3],
+    [4, 5],
+    [7, 8]]
 d = MatchingDistance(FastLCS(101))
-K_inner, K_outer = (DimensionRange(1,10), DimensionRange(1,25))
+K_inner, K_outer = (DimensionRange(1, 10), DimensionRange(1, 25))
 model = SIM(
-    E, 3.5, 
+    E, 3.5,
     d,
     1:10,
     K_inner, K_outer
@@ -45,21 +45,21 @@ summaryplot(mcmc_out)
 
 data = mcmc_out.sample
 E_prior = SIM(E, 0.1, model.dist, model.V, model.K_inner, model.K_outer)
-γ_prior = Uniform(0.5,7.0)
+γ_prior = Uniform(0.5, 7.0)
 
 posterior = SimPosterior(data, E_prior, γ_prior)
 
 # Construct posterior sampler
 posterior_sampler = SimIexSplitMerge(
     mcmc_sampler,
-    len_dist=TrGeometric(0.9,K_inner.l,K_inner.u),
+    len_dist=TrGeometric(0.9, K_inner.l, K_inner.u),
     ν_ed=1, ν_td=1,
     β=0.7, ε=0.3
 )
 
 # Mode Conditional
 
-E_init = [[1,2,1,3,4,3],[7,8,4,5,1,2,1],[10,1]]
+E_init = [[1, 2, 1, 3, 4, 3], [7, 8, 4, 5, 1, 2, 1], [10, 1]]
 @time posterior_out = posterior_sampler(
     posterior,
     # 4.9,
@@ -68,8 +68,8 @@ E_init = [[1,2,1,3,4,3],[7,8,4,5,1,2,1],[10,1]]
     aux_init_at_prev=true,
 );
 plot(
-    posterior_out, E, size=(600,400),   
-    xlabel=["" "Sample Index"], 
+    posterior_out, E, size=(600, 400),
+    xlabel=["" "Sample Index"],
     ylabel=["Distance to True Mode" "γ"],
     yguidefontsize=[9 9],
     xguidefontsize=9
@@ -106,8 +106,8 @@ S_prop
 
 # When we have length one paths 
 S_curr = [rand(1:3, 1) for i in 1:5]
-push!(S_curr, [1,2])
-push!(S_curr,[1,2,3,2])
+push!(S_curr, [1, 2])
+push!(S_curr, [1, 2, 3, 2])
 S_prop = deepcopy(S_curr)
 
 imcmc_special_multi_split_prop_sample!(S_curr, S_prop, mcmc)

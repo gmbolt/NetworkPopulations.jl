@@ -1,7 +1,7 @@
-using InteractionNetworkModels, StructuredDistances, BenchmarkTools
+using NetworkPopulations, StructuredDistances, BenchmarkTools
 using Plots
-mode = [[1,2,1],[1,1,1]]
-mode = [[1,2,1],[1]]
+mode = [[1, 2, 1], [1, 1, 1]]
+mode = [[1, 2, 1], [1]]
 γ = 2.9
 d_S = EditDistance(LCS())
 d_E = MatchingDistance(LCS())
@@ -15,13 +15,13 @@ mcmc_move = InvMcmcMixtureMove(
         EditAllocationMove(ν=1),
         InsertDeleteMove(ν=1, len_dist=TrGeometric(0.8, 1, model.K_inner.u))
     ),
-    (β, 1-β)
+    (β, 1 - β)
 )
 
 mcmc = InvMcmcSampler(
     mcmc_move,
     burn_in=2000, lag=75
-    )
+)
 
 x = mcmc(model, desired_samples=10000, lag=1, burn_in=0)
 plot(x)

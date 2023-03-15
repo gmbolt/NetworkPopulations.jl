@@ -3,7 +3,7 @@
 ## Model Sampling 
 
 ```@example model_sampling
-using InteractionNetworkModels, Distributions 
+using NetworkPopulations, Distributions 
 model_mode = Hollywood(-3.0, Poisson(7), 10)
 S = sample(model_mode, 10)
 V = collect(1:10)

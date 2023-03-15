@@ -1,11 +1,11 @@
-using Distances, StructuredDistances, InteractionNetworkModels
+using Distances, StructuredDistances, NetworkPopulations
 using Plots, BenchmarkTools, Distributions, StatsPlots
 
 d = Cityblock()
 
 V = 9
 τ = 0.2
-mode = [rand() < 0.1 ? rand(1:4) : 0 for i in 1:V,j in 1:V]
+mode = [rand() < 0.1 ? rand(1:4) : 0 for i in 1:V, j in 1:V]
 γ = 1.9
 
 model = SNF(mode, γ, d)
@@ -28,19 +28,19 @@ acceptance_prob(mcmc)
 typeof(model)
 
 # Testing posterior sampler
-@time out  = mcmc_scan(model, desired_samples=100, lag=5, burn_in=500)
+@time out = mcmc_scan(model, desired_samples=100, lag=5, burn_in=500)
 plot(out)
 similar(model, rand(1:10, 20), 1.0)
 
 model.mode
-data = out.sample 
+data = out.sample
 γ_prior = Gamma(model.γ, 1)
 plot(γ_prior)
 G_prior = SNF(
-    model.mode, 
-    0.1, 
+    model.mode,
+    0.1,
     model.d,
-    directed=model.directed, 
+    directed=model.directed,
     self_loops=model.self_loops
 )
 posterior = SnfPosterior(data, G_prior, γ_prior)
@@ -53,7 +53,7 @@ plot(x)
 
 mcmc_posterior = SnfPosteriorSampler(
     mode_move, aux_mcmc, posterior,
-    ε=0.1, 
+    ε=0.1,
     aux_init_at_prev=true
 )
 mcmc_posterior.aux.data
@@ -70,7 +70,7 @@ using CairoMakie, GraphMakie, Graphs
 
 g = SimpleDiGraph(x_sample_mat[1])
 
-f,ax,p = graphplot(
+f, ax, p = graphplot(
     g,
     node_color=:blue,
     edge_plottype=:linesegments,
@@ -78,7 +78,7 @@ f,ax,p = graphplot(
 )
 hidedecorations!(ax)  # hides ticks, grid and lables
 hidespines!(ax)  # hide the frame
-f 
+f
 
 V = 15
 g = SimpleDiGraph(

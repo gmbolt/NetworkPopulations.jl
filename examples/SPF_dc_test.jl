@@ -1,6 +1,6 @@
-using InteractionNetworkModels, Distributions, Plots, StatsPlots
+using NetworkPopulations, Distributions, Plots, StatsPlots
 
-mode = [1,1,1,1,1]
+mode = [1, 1, 1, 1, 1]
 γ = 4.0
 d = LCS()
 V = 1:10
@@ -10,9 +10,9 @@ model = DcSPF(mode, γ, d, p, V)
 
 mcmc = DcSpfMcmcSampler(ν=1, lag=30)
 
-@time sample = draw_sample(mcmc,model, desired_samples=1000)
+@time sample = draw_sample(mcmc, model, desired_samples=1000)
 sample
 
-plot(map(x->d(x,mode), sample))
+plot(map(x -> d(x, mode), sample))
 
 histogram(length.(sample))

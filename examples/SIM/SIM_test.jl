@@ -1,4 +1,4 @@
-using InteractionNetworkModels, Distributions, BenchmarkTools, Plots
+using NetworkPopulations, Distributions, BenchmarkTools, Plots
 using Distances, StructuredDistances
 # The Model(s)
 model_mode = Hollywood(-3.0, Poisson(7), 10)

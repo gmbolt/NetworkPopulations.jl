@@ -1,20 +1,20 @@
-using InteractionNetworkModels, Plots, Distributions
+using NetworkPopulations, Plots, Distributions
 using StatsPlots, Plots.Measures, StatsBase, LaTeXStrings
 
-E = [[1,2,1,2],
-    [1,2,1],
-    [3,4,3], 
-    [3,4], 
-    [1,2]
+E = [[1, 2, 1, 2],
+    [1, 2, 1],
+    [3, 4, 3],
+    [3, 4],
+    [1, 2]
 ]
 
 d = MatchingDist(FastLCS(100))
 
-K_inner = DimensionRange(1,50)
-K_outer = DimensionRange(1,50)
+K_inner = DimensionRange(1, 50)
+K_outer = DimensionRange(1, 50)
 V = 1:30
 model = SIM(
-    E, 4.4, 
+    E, 4.4,
     d,
     V, K_inner, K_outer)
 
@@ -36,7 +36,7 @@ summaryplot(test)
     desired_samples=50,
     lag=500,
     burn_in=10000
-    )
+)
 
 
 plot(mcmc_out)
@@ -44,14 +44,14 @@ summaryplot(mcmc_out)
 
 data = mcmc_out.sample
 E_prior = SIM(E, 0.1, model.dist, model.V, model.K_inner, model.K_outer)
-γ_prior = Uniform(0.5,7.0)
+γ_prior = Uniform(0.5, 7.0)
 
 target = SimPosterior(data, E_prior, γ_prior)
 
 # Construct posterior sampler
 posterior_sampler = SimIexInsertDelete(
     mcmc_sampler,
-    len_dist=TrGeometric(0.9,1,100),
+    len_dist=TrGeometric(0.9, 1, 100),
     ν_ed=1, ν_td=1,
     β=0.7, ε=0.2
 )
@@ -61,7 +61,7 @@ posterior_sampler = SimIexInsertDelete(
 
 E_restr = E[1:2]
 posterior_out = posterior_sampler(
-    target,  
+    target,
     desired_samples=200, lag=1, burn_in=0,
     γ_init=4.6, S_init=E[1:1]
 )
@@ -76,18 +76,18 @@ x_num_inters = [zeros(200) for i in eachindex(E)]
 for i in eachindex(E)
     draw_sample_gamma!(
         x[i],
-        posterior_sampler, 
-        target, 
-        E[1:i], 
-        burn_in=250, lag=5, 
-        γ_init = 4.4    
+        posterior_sampler,
+        target,
+        E[1:i],
+        burn_in=250, lag=5,
+        γ_init=4.4
     )
-end 
+end
 
 
 density(
-    x, 
-    label=[L"\mathcal{E}_{1:%$(i)}" for j=1:1, i=eachindex(E)],
+    x,
+    label=[L"\mathcal{E}_{1:%$(i)}" for j = 1:1, i = eachindex(E)],
     legend_font_pointsize=10,
     legend_font_valign=:bottom,
     xlabel="γ",
@@ -98,32 +98,32 @@ density(
 
 modes = InteractionSequenceSample{Int}()
 for i in eachindex(x)
-    tmp_count = 0 
+    tmp_count = 0
     path_ind = findlast(cumsum(length.(E)) .< i)
-    if path_ind == nothing 
+    if path_ind == nothing
         E_restr = [E[1][1:i]]
-    else 
+    else
         entry_ind = i - cumsum(length.(E))[path_ind]
         E_restr = E[1:path_ind]
         push!(E_restr, E[path_ind+1][1:entry_ind])
-    end 
+    end
     push!(modes, E_restr)
-end 
+end
 x = [zeros(200) for i in eachindex(modes)]
 for i in eachindex(modes)
     draw_sample_gamma!(
         x[i],
-        posterior_sampler, 
-        target, 
-        modes[i], 
-        burn_in=250, lag=5, 
-        γ_init = 4.4    
+        posterior_sampler,
+        target,
+        modes[i],
+        burn_in=250, lag=5,
+        γ_init=4.4
     )
-end 
+end
 
 density(
-    x, 
-    label=["Total dim. = $(i)" for j=1:1, i=eachindex(x)],
+    x,
+    label=["Total dim. = $(i)" for j = 1:1, i = eachindex(x)],
     legend=:outerright,
     xlabel="γ",
     ylabel="(Conditional) Posterior Density"
@@ -133,13 +133,13 @@ density(
 # Using dependent sampler 
 posterior_sampler_dep = SimIexInsertDeleteDependent(
     mcmc_sampler,
-    len_dist=TrGeometric(0.9,1,100),
+    len_dist=TrGeometric(0.9, 1, 100),
     ν_ed=1, ν_td=1,
     β=0.7, ε_ed=0.07, ε_td=0.2
 )
 
 posterior_out = posterior_sampler_dep(
-    target, 
+    target,
     desired_samples=400, lag=1, burn_in=0,
     γ_init=4.6, S_init=E[1:1]
 )

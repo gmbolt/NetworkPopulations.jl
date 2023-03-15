@@ -1,12 +1,12 @@
-using InteractionNetworkModels, Plots, Distributions
+using NetworkPopulations, Plots, Distributions
 using StatsPlots, Plots.Measures, StatsBase
 using Distances, StructuredDistances
 
 V = 50
-Sᵐ = [rand(1:V,rand(2:5)) for i in 1:10]
+Sᵐ = [rand(1:V, rand(2:5)) for i in 1:10]
 d = FastEditDistance(FastLCS(100), 100)
 γ = 6.0
-K_inner, K_outer = (DimensionRange(1,10), DimensionRange(1,25))
+K_inner, K_outer = (DimensionRange(1, 10), DimensionRange(1, 25))
 # K_inner, K_outer = (Inf,Inf)
 model = SIS(
     Sᵐ, γ,
@@ -14,10 +14,10 @@ model = SIS(
     1:V,
     K_inner, K_outer)
 
-d(Sᵐ,Sᵐ)
+d(Sᵐ, Sᵐ)
 
 mcmc_sampler = SisMcmcInsertDelete(
-    ν_ed=1, ν_td=1, β=0.7, len_dist=TrGeometric(0.9,1,K_inner.u),
+    ν_ed=1, ν_td=1, β=0.7, len_dist=TrGeometric(0.9, 1, K_inner.u),
     lag=30, burn_in=1000,
     K=200
 )
@@ -34,7 +34,7 @@ test.sample
     desired_samples=100,
     lag=500,
     burn_in=10000
-    )
+)
 
 
 plot(mcmc_out)
@@ -42,7 +42,7 @@ summaryplot(mcmc_out)
 
 data = mcmc_out.sample
 S_prior = SIS(Sᵐ, 0.1, model.dist, model.V, model.K_inner, model.K_outer)
-γ_prior = Uniform(0.5,10.0)
+γ_prior = Uniform(0.5, 10.0)
 
 posterior = SisPosterior(data, S_prior, γ_prior)
 
@@ -63,7 +63,7 @@ initialiser = InitRandEdit(2)
 
 @time posterior_out = posterior_sampler(
     posterior,
-    S_init=S_init, 
+    S_init=S_init,
     γ_init=4.0,
     # aux_init_at_prev=true,
     desired_samples=100
@@ -92,7 +92,7 @@ using BenchmarkTools
 @time posterior_out = posterior_sampler(
     posterior,
     desired_samples=500, lag=2, burn_in=1000,
-    S_init = S_init, γ_init=6.0
+    S_init=S_init, γ_init=6.0
 )
 
 posterior_out
@@ -108,7 +108,7 @@ dist_pred = DistanceToModePredictive(posterior_out)
 outer_dim_pred = OuterDimensionPredictive(posterior_out)
 
 pred_sample = draw_sample(mcmc_sampler, dist_pred, n_samples=500, n_reps=length(data))
-obs_dists = map(x->d(x,model.mode), data)
+obs_dists = map(x -> d(x, model.mode), data)
 density(pred_sample, alpha=0.1, label=nothing, lw=2)
 density!(obs_dists, c=:red, lw=2, label="Observed")
 
@@ -130,24 +130,24 @@ data_test = draw_sample(
     desired_samples=1,
     lag=1,
     burn_in=10000
-    )
+)
 S_test = data_test[1]
 Sᵐ
-posterior_pred = pred_missing(S_test, (1,1), posterior_out)
+posterior_pred = pred_missing(S_test, (1, 1), posterior_out)
 get_prediction(posterior_pred)
 
-model_pred = pred_missing(S_test, (1,1), model)
+model_pred = pred_missing(S_test, (1, 1), model)
 get_prediction(model_pred)
 
 # Checking flip proposal 
-x = [1,3,4,5,6,7]
+x = [1, 3, 4, 5, 6, 7]
 P, vmap, vmap_inv = get_informed_proposal_matrix(posterior, 0.0)
-flip_informed_excl!(x,[1],P)
+flip_informed_excl!(x, [1], P)
 x
 out = Int[]
 for i in 1:1000
-    flip_informed_excl!(x,[1],P)
+    flip_informed_excl!(x, [1], P)
     push!(out, x[1])
-end 
+end
 
 counts(out)

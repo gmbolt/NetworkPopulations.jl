@@ -1,4 +1,4 @@
-using InteractionNetworkModels
+using NetworkPopulations
 
 move = PathPermutationMove(ν=2)
 

@@ -6,10 +6,10 @@ using InteractiveUtils
 
 # ╔═╡ 80b90b23-c999-4836-ae83-d1b7017daa46
 begin
-	using Pkg
-	Pkg.activate(joinpath(Base.current_project(), "..", ".."))  # Tells Pluto.jl we are going to use local enviroment 
-	using InteractionNetworkModels, Distributions, Plots
-end 
+    using Pkg
+    Pkg.activate(joinpath(Base.current_project(), "..", ".."))  # Tells Pluto.jl we are going to use local enviroment 
+    using NetworkPopulations, Distributions, Plots
+end
 
 # ╔═╡ 0439d40e-768e-44d0-85bc-417b063f4315
 md"
@@ -30,11 +30,11 @@ md"
 
 # ╔═╡ 09b424d8-b54d-4d12-9367-c0413c46475e
 model = SIS(
-	[[1,2],[1,2],[2,3,4],[2,3,4]],
-	5.0, 
-	FastEditDistance(FastLCS(100),100),
-	1:10, 
-	30, 30
+    [[1, 2], [1, 2], [2, 3, 4], [2, 3, 4]],
+    5.0,
+    FastEditDistance(FastLCS(100), 100),
+    1:10,
+    30, 30
 );
 
 # ╔═╡ 48ad33b4-b44c-482e-aa98-baa5a3e890ce
@@ -43,7 +43,7 @@ md"
 "
 
 # ╔═╡ 5f990069-ba98-4930-9806-3ed8c25e7253
-path_dist = PathPseudoUniform(model.V,TrGeometric(0.8, 1, 10));
+path_dist = PathPseudoUniform(model.V, TrGeometric(0.8, 1, 10));
 
 # ╔═╡ 699e9669-b105-4d5a-962b-7bf63acb8b49
 mcmc = SisMcmcInsertDelete(path_dist);

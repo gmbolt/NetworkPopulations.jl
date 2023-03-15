@@ -1,15 +1,15 @@
-using InteractionNetworkModels, Plots, Distributions
+using NetworkPopulations, Plots, Distributions
 using StatsPlots, Plots.Measures, StatsBase
 
-E = [[1,2,1,2],
-    [1,2,1],
-    [3,4,3], 
-    [3,4], 
-    [1,2]]
+E = [[1, 2, 1, 2],
+    [1, 2, 1],
+    [3, 4, 3],
+    [3, 4],
+    [1, 2]]
 d = MatchingDist(FastLSP(100))
-K_inner, K_outer = (DimensionRange(2,50), DimensionRange(1,50))
+K_inner, K_outer = (DimensionRange(2, 50), DimensionRange(1, 50))
 model = SIM(
-    E, 4.4, 
+    E, 4.4,
     d,
     1:50,
     K_inner, K_outer)
@@ -40,7 +40,7 @@ test.sample
     desired_samples=50,
     lag=500,
     burn_in=10000
-    )
+)
 
 
 plot(mcmc_out)
@@ -48,14 +48,14 @@ summaryplot(mcmc_out)
 
 data = mcmc_out.sample
 E_prior = SIM(E, 0.1, model.dist, model.V, model.K_inner, model.K_outer)
-γ_prior = Uniform(0.5,7.0)
+γ_prior = Uniform(0.5, 7.0)
 
 target = SimPosterior(data, E_prior, γ_prior)
 
 # Construct posterior sampler
 posterior_sampler = SimIexInsertDelete(
     mcmc_sampler,
-    len_dist=TrGeometric(0.9,K_inner.l,K_inner.u),
+    len_dist=TrGeometric(0.9, K_inner.l, K_inner.u),
     ν_ed=1, ν_td=1,
     β=0.7, ε=0.3
 )
@@ -73,18 +73,18 @@ d(E_init, E)
 posterior_out.S_sample
 plot(posterior_out, E)
 plot(length.(posterior_out.S_sample))
-findall(diff(length.(posterior_out.S_sample)).>0)
+findall(diff(length.(posterior_out.S_sample)) .> 0)
 
 plot(posterior_out.suff_stat_trace)
 
 S_est = deepcopy(posterior_out.S_sample[end])
 
-mapreduce(x->d_lsp(x,S_est), +, data)
-mapreduce(x->d_lsp(x,E), +, data)
+mapreduce(x -> d_lsp(x, S_est), +, data)
+mapreduce(x -> d_lsp(x, E), +, data)
 
 plot(length.(data))
 
-i=1
+i = 1
 tmp1, C1 = d_lsp(E, data[i])
 tmp2, C2 = d_lsp(data[i], E)
 C1
@@ -106,7 +106,7 @@ E[1]
 data[i][1]
 
 
-[d_lsp(x,E) for x in data]
+[d_lsp(x, E) for x in data]
 
 d_lsp(E, S_est)
 d_lsp(S_est, E)
@@ -117,19 +117,19 @@ E
 
 
 d([[1]], [[2]])
-d([[2]],[[1]])
+d([[2]], [[1]])
 
 d_lcs = MatchingDist(LCS())
 
 d_lcs(E, S_est)
 d_lcs(S_est, E)
 
-map(x->d(x,E), data)
+map(x -> d(x, E), data)
 E
 d
 
-plot(map(x->d_lsp(E,x), data))
-plot!(map(x->d_lsp(x,S_est), data))
+plot(map(x -> d_lsp(E, x), data))
+plot!(map(x -> d_lsp(x, S_est), data))
 S_est
 
 print_matching(d, S, data[1])
@@ -139,13 +139,13 @@ print_map_est(posterior_out)
 
 plot(posterior_out, E)
 
-d([[1,1,1],[2,2]], [[2,1]])
+d([[1, 1, 1], [2, 2]], [[2, 1]])
 
 # Dispersion conditional
 E_fix = Eᵐ
 posterior_out = posterior_sampler(
-    target, 
-    E_fix, 
+    target,
+    E_fix,
     desired_samples=1000, lag=1, burn_in=0,
     init=4.6
 )
