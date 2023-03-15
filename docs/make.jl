@@ -17,8 +17,8 @@ makedocs(;
             :Macros => Dict(
                 :E => ["\\mathcal{E}"],
                 :G => ["\\mathcal{G}"],
-                :S => ["\\mathcal{S}"]
-                      :bar => ["\\langle#1|", 1], # Can pass args (https://docs.mathjax.org/en/v2.7-latest/options/)
+                :S => ["\\mathcal{S}"],
+                :bar => ["\\langle#1|", 1], # Can pass args (https://docs.mathjax.org/en/v2.7-latest/options/)
             ),
         )))
     ),
