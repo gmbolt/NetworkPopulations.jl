@@ -1,3 +1,4 @@
 [deps]
 Documenter = "e30172f5-a6a5-5a46-863b-614d45cd2de4"
 NetworkPopulations = "292a1bb4-fa15-4f11-86f3-3196e66d7b42"
+Plots = "91a5bcdd-55d7-5caf-9e0b-520d859cae80"

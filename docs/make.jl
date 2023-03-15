@@ -12,10 +12,21 @@ makedocs(;
         prettyurls=get(ENV, "CI", "false") == "true",
         canonical="https://gmbolt.github.io/NetworkPopulations.jl",
         edit_link="master",
-        assets=String[]
+        assets=String[],
+        mathengine=Documenter.MathJax2(Dict(:TeX => Dict(
+            :Macros => Dict(
+                :E => ["\\mathcal{E}"],
+                :G => ["\\mathcal{G}"],
+                :S => ["\\mathcal{S}"]
+                      :bar => ["\\langle#1|", 1], # Can pass args (https://docs.mathjax.org/en/v2.7-latest/options/)
+            ),
+        )))
     ),
     pages=[
-        "Home" => "index.md",
+        "Introduction" => "index.md",
+        "Standard Networks" => "model_sampling.md",
+        "Interaction Networks" => "model_sampling.md",
+        "Reference" => "reference.md"
     ]
 )
 
