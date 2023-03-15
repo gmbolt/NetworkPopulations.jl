@@ -1,0 +1,7 @@
+name = "NetworkPopulations"
+uuid = "292a1bb4-fa15-4f11-86f3-3196e66d7b42"
+authors = ["George Bolt g.bolt@lancaster.ac.uk"]
+version = "1.0.0-DEV"
+
+[compat]
+julia = "1.7"
