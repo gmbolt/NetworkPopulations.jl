@@ -12,14 +12,14 @@ makedocs(;
         prettyurls=get(ENV, "CI", "false") == "true",
         canonical="https://gmbolt.github.io/NetworkPopulations.jl",
         edit_link="master",
-        assets=String[],
+        assets=String[]
     ),
     pages=[
         "Home" => "index.md",
-    ],
+    ]
 )
 
 deploydocs(;
     repo="github.com/gmbolt/NetworkPopulations.jl",
-    devbranch="master",
+    devbranch="main"
 )
