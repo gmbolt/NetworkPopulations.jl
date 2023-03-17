@@ -5,7 +5,64 @@ export get_true_dist_dict, get_true_dist_vec
 export get_entropy
 export log_multinomial_ratio, myaddcounts!
 export sample_frechet_mean, sample_frechet_mean_mem, sample_frechet_var
+export rand_delete!, rand_insert!, rand_reflect
 
+function rand_reflect(x, ε, l, u)
+    ξ = ε * (2 * rand() - 1)
+    y = x + ξ
+    if y < l
+        return 2 * l - y
+    elseif y > u
+        return 2 * u - y
+    else
+        return y
+    end
+end
+
+function rand_delete!(x::Path{Int}, d::Int)
+
+    n = length(x)
+    k = d
+    i = 0
+    live_index = 0
+    while k > 0
+        u = rand()
+        q = (n - k) / n
+        while q > u  # skip
+            i += 1
+            n -= 1
+            q *= (n - k) / n
+        end
+        i += 1
+        # i is now index to delete 
+        deleteat!(x, i - live_index)
+        live_index += 1
+        n -= 1
+        k -= 1
+    end
+
+end
+
+function rand_insert!(x::Path{Int}, a::Int, V::UnitRange)
+
+    n = length(x) + a
+    k = a
+    i = 0
+    while k > 0
+        u = rand()
+        q = (n - k) / n
+        while q > u  # skip
+            i += 1
+            n -= 1
+            q *= (n - k) / n
+        end
+        i += 1
+        # i is now index to insert
+        insert!(x, i, rand(V))
+        n -= 1
+        k -= 1
+    end
+end
 
 function sample_frechet_mean(
     data::Vector{T},
