@@ -1,4 +1,4 @@
-using NetworkPopulations, Distributions, BenchmarkTools, Distances, StructuredDistances
+using NetworkPopulations, Distributions, BenchmarkTools, Distances, NetworkDistances
 using Plots
 
 # The Model(s)

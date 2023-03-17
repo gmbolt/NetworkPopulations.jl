@@ -1,4 +1,4 @@
-using NetworkPopulations, Distributions, Distances, StructuredDistances
+using NetworkPopulations, Distributions, Distances, NetworkDistances
 using BenchmarkTools, StatsBase, Plots, StatsPlots
 
 V = 50

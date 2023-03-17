@@ -1,4 +1,4 @@
-using NetworkPopulations, StructuredDistances, BenchmarkTools
+using NetworkPopulations, NetworkDistances, BenchmarkTools
 using Plots
 mode = [[1, 2, 1], [1, 1, 1]]
 mode = [[1, 2, 1], [1]]

@@ -1,6 +1,6 @@
 using NetworkPopulations, Plots, Distributions
 using StatsPlots, Plots.Measures, StatsBase
-using Distances, StructuredDistances
+using Distances, NetworkDistances
 
 V = 50
 Sᵐ = [rand(1:V, rand(2:5)) for i in 1:10]

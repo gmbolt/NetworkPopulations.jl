@@ -1,4 +1,4 @@
-using NetworkPopulations, StructuredDistances, Plots, Distributions
+using NetworkPopulations, NetworkDistances, Plots, Distributions
 
 # Testing sampler
 # ---------------

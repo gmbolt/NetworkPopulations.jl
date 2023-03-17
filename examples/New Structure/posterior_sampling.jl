@@ -1,4 +1,4 @@
-using NetworkPopulations, StructuredDistances, Distributions
+using NetworkPopulations, NetworkDistances, Distributions
 using Plots, Random
 
 E = [

@@ -1,4 +1,4 @@
-using Distances, StructuredDistances, NetworkPopulations
+using Distances, NetworkDistances, NetworkPopulations
 using Plots, BenchmarkTools, Distributions, StatsPlots
 
 d = Cityblock()

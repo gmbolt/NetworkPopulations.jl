@@ -1,5 +1,5 @@
 using NetworkPopulations, Plots, Distributions
-using StructuredDistances
+using NetworkDistances
 using StatsPlots, Plots.Measures, StatsBase
 
 E = [[1, 2, 1, 2],

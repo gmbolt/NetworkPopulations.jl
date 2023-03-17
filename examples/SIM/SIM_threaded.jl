@@ -1,7 +1,7 @@
 using Pkg
 Pkg.activate("../../..")
 using NetworkPopulations, Distributions, BenchmarkTools
-using Distances, StructuredDistances
+using Distances, NetworkDistances
 # The Model(s)
 
 model_mode = Hollywood(-3.0, Poisson(7), 10)
