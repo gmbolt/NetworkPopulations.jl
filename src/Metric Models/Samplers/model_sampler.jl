@@ -1,11 +1,16 @@
 using RecipesBase, Measures
 export InvMcmcSampler, McmcOutput
 
+"""
+    InvMcmcSampler(move::InvMcmcMove; kwargs...)
+
+iMCMC sampler for SIS and SIM models using given iMCMC move.
+"""
 struct InvMcmcSampler{T<:InvMcmcMove}
     move::T
-    desired_samples::Int 
-    burn_in::Int 
-    lag::Int 
+    desired_samples::Int
+    burn_in::Int
+    lag::Int
     K::Int
     init::McmcInitialiser
     pointers::InteractionSequence{Int}
@@ -13,18 +18,18 @@ struct InvMcmcSampler{T<:InvMcmcMove}
         move::T;
         desired_samples::Int=1000, burn_in::Int=0, lag::Int=1,
         K::Int=100, init=InitMode()
-        ) where {T<:InvMcmcMove}
+    ) where {T<:InvMcmcMove}
         pointers = [Int[] for i in 1:(2K)]
         new{T}(move, desired_samples, burn_in, lag, K, init, pointers)
-    end 
-end 
+    end
+end
 
 Base.show(io::IO, x::InvMcmcSampler{T}) where {T} = print(io, typeof(x))
 
-struct McmcOutput{T<:Union{SIS,SIM}} 
+struct McmcOutput{T<:Union{SIS,SIM}}
     sample::Vector{Vector{Path{Int}}}  # The sample
     model::T
-end 
+end
 
 Base.show(io::IO, x::McmcOutput) = print(io, typeof(x))
 
@@ -38,7 +43,7 @@ Base.show(io::IO, x::McmcOutput) = print(io, typeof(x))
     size --> (800, 300)
     margin --> 5mm
     x
-end 
+end
 
 acceptance_prob(mcmc::InvMcmcSampler) = acceptance_prob(mcmc.move)
 
@@ -47,23 +52,23 @@ function eval_accept_prob(
     S_prop::InteractionSequence{Int},
     model::T,
     log_ratio::Float64
-    ) where {T<:Union{SIS,SIM}}
+) where {T<:Union{SIS,SIM}}
 
     mode, γ, dist = (model.mode, model.γ, model.dist)
 
     # @show S_curr, S_prop
     log_lik_ratio = -γ * (
-        dist(mode, S_prop)-dist(mode, S_curr)
+        dist(mode, S_prop) - dist(mode, S_curr)
     )
-    
-    if typeof(model)==SIM
+
+    if typeof(model) == SIM
         log_multinom_term = log_multinomial_ratio(S_curr, S_prop)
         return log_lik_ratio + log_ratio + log_multinom_term
-    else 
+    else
         return log_lik_ratio + log_ratio
-    end 
+    end
 
-end 
+end
 
 function accept_reject!(
     S_curr::InteractionSequence{Int},
@@ -71,7 +76,7 @@ function accept_reject!(
     pointers::InteractionSequence{Int},
     move::InvMcmcMove,
     model::T
-    ) where {T<:Union{SIS,SIM}}
+) where {T<:Union{SIS,SIM}}
 
     move.counts[2] += 1
 
@@ -79,29 +84,29 @@ function accept_reject!(
 
     # Catch out of bounds proposals (reject them, i.e. 0 acc prob)
     if any(!(1 ≤ length(x) ≤ model.K_inner.u) for x in S_prop)
-        log_α = -Inf 
+        log_α = -Inf
     elseif !(1 ≤ length(S_prop) ≤ model.K_outer.u)
-        log_α = -Inf 
-    else 
+        log_α = -Inf
+    else
         log_α = eval_accept_prob(S_curr, S_prop, model, log_ratio)
-    end 
+    end
 
     # @show log_α
     if log(rand()) < log_α
         # We accept!
         move.counts[1] += 1
         enact_accept!(S_curr, S_prop, pointers, move)
-    else 
+    else
         # We reject!
         enact_reject!(S_curr, S_prop, pointers, move)
-    end 
+    end
 
-end 
+end
 
 function intialise_states!(
     pointers::InteractionSequence{Int},
     init::InteractionSequence{Int}
-    )
+)
 
     S_curr = InteractionSequence{Int}()
     S_prop = InteractionSequence{Int}()
@@ -112,33 +117,33 @@ function intialise_states!(
         tmp = pop!(pointers)
         copy!(tmp, init_path)
         push!(S_prop, tmp)
-    end 
+    end
 
     return S_curr, S_prop
 
-end 
+end
 
 function return_states!(
     S_curr::InteractionSequence{Int},
     S_prop::InteractionSequence{Int},
     pointers::InteractionSequence{Int}
-    )
+)
     for i in eachindex(S_curr)
         tmp = pop!(S_curr)
         pushfirst!(pointers, tmp)
         tmp = pop!(S_prop)
         pushfirst!(pointers, tmp)
-    end 
-end 
+    end
+end
 
 function draw_sample!(
-    sample_out::Union{InteractionSequenceSample{Int}, SubArray},
+    sample_out::Union{InteractionSequenceSample{Int},SubArray},
     mcmc::InvMcmcSampler,
     model::T;
     burn_in::Int=mcmc.burn_in,
     lag::Int=mcmc.lag,
     init::InteractionSequence{Int}=get_init(mcmc.init, model)
-    ) where {T<:Union{SIS,SIM}}
+) where {T<:Union{SIS,SIM}}
 
     pointers = mcmc.pointers
 
@@ -149,47 +154,47 @@ function draw_sample!(
     reset_counts!(mcmc.move) # Reset counts for mcmc move (tracks acceptances)
 
     while sample_count ≤ length(sample_out)
-        i += 1 
+        i += 1
         # Store value 
-        if (i > burn_in) & (((i-1) % lag)==0)
+        if (i > burn_in) & (((i - 1) % lag) == 0)
             @inbounds sample_out[sample_count] = deepcopy(S_curr)
             sample_count += 1
-        end 
+        end
         accept_reject!(
-            S_curr, S_prop, 
+            S_curr, S_prop,
             pointers,
             mcmc.move,
             model
         )
         # println(S_prop)
-    end 
+    end
     return_states!(S_curr, S_prop, pointers)
-end 
+end
 
 function draw_sample(
-    mcmc::InvMcmcSampler, 
+    mcmc::InvMcmcSampler,
     model::T;
-    desired_samples::Int=mcmc.desired_samples, 
+    desired_samples::Int=mcmc.desired_samples,
     burn_in::Int=mcmc.burn_in,
     lag::Int=mcmc.lag,
     init::InteractionSequence{Int}=get_init(mcmc.init, model)
-    ) where {T<:Union{SIS,SIM}}
+) where {T<:Union{SIS,SIM}}
 
     sample_out = InteractionSequenceSample{Int}(undef, desired_samples)
     draw_sample!(sample_out, mcmc, model, burn_in=burn_in, lag=lag, init=init)
     return sample_out
-end 
+end
 
 function (mcmc::InvMcmcSampler)(
     model::T;
-    desired_samples::Int=mcmc.desired_samples, 
+    desired_samples::Int=mcmc.desired_samples,
     burn_in::Int=mcmc.burn_in,
     lag::Int=mcmc.lag,
     init::InteractionSequence{Int}=get_init(mcmc.init, model)
-    ) where {T<:Union{SIS,SIM}}
+) where {T<:Union{SIS,SIM}}
 
     sample_out = draw_sample(mcmc, model, desired_samples=desired_samples, burn_in=burn_in, lag=lag, init=init)
 
     return McmcOutput(sample_out, model)
 
-end 
+end
