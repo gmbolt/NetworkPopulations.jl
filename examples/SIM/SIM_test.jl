@@ -1,60 +1,59 @@
 using NetworkPopulations, Distributions, BenchmarkTools, Plots
-using Distances, StructuredDistances
+using Distances, NetworkDistances, ProgressMeter
 # The Model(s)
 model_mode = Hollywood(-3.0, Poisson(7), 10)
 S = sample(model_mode, 10)
 S = [[1, 1, 1, 1], [2, 2, 2, 2], [3, 3, 3, 3, 3, 3]]
 V = 1:20
-
-d_lcs = MatchingDistance(FastLCS(100))
-d_lcs_t = ThreadedMatchingDistance(LCS())
-d_lsp = MatchingDistance(FastLSP(100))
-# d_f = FastMatchingDist(FastLCS(100), 51)
-d_lsp_fp = FpMatchingDist(FastLSP(100), 100.0)
-
-d_c = CouplingDistance(FastLSP(100))
-
 K_inner = DimensionRange(1, 50)
 K_outer = DimensionRange(1, 50)
 
-d_lsp_as = AvgSizeMatchingDist(FastLSP(100), 0.5)
-d_lsp_sc = SizeConstrainedMatchingDist(FastLSP(100), 1.0, 4)
+mean_path_len = 0
+pen_par = ParametricPenalty(2, 2.0, interc=2.0)
+d_par = MatchingDistance(FastLCS(100), pen_par)
+d = MatchingDistance(FastLCS(100))
 
-model = SIM(S, 5.0, d_lcs, V, K_inner, K_outer)
-model_t = SIM(S, 5.0, d_lcs_t, V, K_inner, K_outer)
 
+plot([
+    [pen_par(zeros(Int, i)) for i in 1:10],
+    [d.penalty(zeros(Int, i)) for i in 1:10]
+])
 
-@time d_lsp_as([[1, 2]], [[1, 2], [1, 3, 3, 4, 5]])
-@time d_lsp_sc([[1, 2]], [[1, 2], [1, 3, 3, 4, 5, 12, 3]])
-@time d_lsp([[1, 2]], [[1, 2], [1, 3, 3, 4, 5, 12, 3]])
+d(S, [[1, 1], [1]])
+d_par(S, [[1, 1], [1]])
 
-# model_f = SIM(S, 4.0, d_f, V, 50, 50)
-mcmc_sampler = SimMcmcInsertDelete(
-    ν_ed=5, β=0.6, ν_td=3,
-    len_dist=TrGeometric(0.8, K_inner.l, K_inner.u),
-    lag=1,
-    K=200,
-    burn_in=1000
-)
-mcmc_sampler_sp = SimMcmcInsertDeleteSubpath(
-    ν_ed=5, β=0.6, ν_td=3,
-    len_dist=TrGeometric(0.1, model.K_inner.l, model.K_inner.u),
-    lag=1,
-    K=200
+model = SIM(S, 4.5, d_par, V, K_inner, K_outer)
+model_dist = SIM(S, 4.5, d, V, K_inner, K_outer)
+
+plot(
+    1:50,
+    [pen_par(zeros(Int, i)) for i in 1:50],
+    xlabel="Path Length",
+    ylabel="Penalty"
 )
 
-mcmc_sampler_prop = SimMcmcInsertDeleteProportional(
-    ν_ed=1, β=0.6, ν_td=3,
-    len_dist=TrGeometric(0.1, model.K_inner.l, model.K_inner.u),
-    lag=1,
-    K=200, burn_in=1000
+
+pen_dist = DistancePenalty(LCS())
+plot(
+    1:50,
+    [pen_dist(zeros(Int, i)) for i in 1:50],
+    xlabel="Path Length",
+    ylabel="Penalty"
 )
 
-mcmc_sampler_len = SimMcmcInsertDeleteLengthCentered(
-    ν_ed=1, β=0.6, ν_td=3,
-    lag=1,
-    K=200, burn_in=1000
+β1 = 0.7
+imcmc_move = InvMcmcMixtureMove(
+    (
+        EditAllocationMove(ν=6),
+        InsertDeleteMove(ν=1, len_dist=Geometric(0.5)),
+    ),
+    (β1, 1 - β1)
 )
+mcmc_sampler = InvMcmcSampler(
+    imcmc_move,
+    burn_in=4000, lag=50
+)
+
 
 @time out = mcmc_sampler(
     model,
@@ -64,22 +63,57 @@ mcmc_sampler_len = SimMcmcInsertDeleteLengthCentered(
     desired_samples=200
 )
 
+out.sample[30:40]
+acceptance_prob(mcmc_sampler)
 
-@time out = mcmc_sampler(
-    model_t,
+summaryplot(out)
+
+
+plot(out)
+plot!(map(x -> d_pen(x, S), out.sample))
+
+# Simulation 
+gammas = 1.0:5.0:40.0
+scales = 0.1:0.3:2.0
+
+function run(gammas, scales)
+
+
+    for (gamma_i, scales_i) in product(gammas, scales)
+        d = MatchDist(FastLSP(100), ParametricPenalty(mean_path_len, scales, interc=1))
+        model = SIM(S, 25.0, d_par, V, K_inner, K_outer)
+    end
+
+end
+
+
+model = SIM(S, 4.8, d_par, V, K_inner, K_outer)
+
+
+β1 = 0.6
+imcmc_move = InvMcmcMixtureMove(
+    (
+        EditAllocationMove(ν=2),
+        InsertDeleteCenteredMove(ν=1)
+    ),
+    (β1, 1 - β1)
+)
+mcmc_sampler_centered = InvMcmcSampler(
+    imcmc_move,
+    burn_in=4000, lag=50
+)
+
+
+@time out = mcmc_sampler_centered(
+    model,
     lag=20,
     init=model.mode,
     burn_in=0,
     desired_samples=200
 )
-
-plot(out)
-summaryplot(out)
 out.sample[100]
-
-d_lsp_sc(a, model.mode)
-
-d_lsp_sc([[1, 1, 1], [2, 2, 2]], [[1, 1, 1], [2, 2, 2], [3, 4, 4, 4]])
+acceptance_prob(mcmc_sampler_centered)
+summaryplot(out)
 
 
 @time out = mcmc_sampler_len(
@@ -92,6 +126,16 @@ d_lsp_sc([[1, 1, 1], [2, 2, 2]], [[1, 1, 1], [2, 2, 2], [3, 4, 4, 4]])
 plot(out)
 summaryplot(out)
 out.sample
+
+
+mcmc_sampler_len = SimMcmcInsertDeleteLengthCentered(
+    ν_ed=1, β=0.6, ν_td=3,
+    lag=1,
+    K=200, burn_in=1000
+)
+
+
+mcmc_sampler_len(model)
 
 
 @time out_prop = mcmc_sampler_prop(
