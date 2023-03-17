@@ -11,7 +11,7 @@ using RecipesBase, StatsBase, Measures
     size --> (800, 300)
     margin --> 5mm
     x
-end 
+end
 
 @recipe function f(output::SimMcmcOutput)
     model = output.model
@@ -23,7 +23,7 @@ end
     size --> (800, 300)
     margin --> 5mm
     x
-end 
+end
 
 @recipe function f(output::SpfMcmcOutput)
     model = output.model
@@ -35,7 +35,7 @@ end
     size --> (800, 300)
     margin --> 5mm
     x
-end 
+end
 
 @userplot LengthPlot
 
@@ -51,11 +51,11 @@ end
         yguide --> "Proportion"
         xguide --> "Path Length"
         xticks --> 1:maximum(data)
-        xlims --> [0, maximum(data)+0.5]
+        xlims --> [0, maximum(data) + 0.5]
         proportionmap(data)
-    end 
+    end
 
-end 
+end
 
 
 @userplot SummaryPlot
@@ -63,7 +63,7 @@ end
     output = h.args  # A mcmc_output type
     model = output[1].model
     sample = output[1].sample
-    layout := (3,1)
+    layout := (3, 1)
     legend --> false
     xguide := "Sample"
     size --> (800, 600)
@@ -71,17 +71,17 @@ end
 
     @series begin
         seriestype := :line
-        yguide --> "Distance from Mode"
+        yguide --> "Dist. from Mode"
         map(x -> model.dist(model.mode, x), sample)
-    end 
+    end
     @series begin
         seriestype := :line
-        yguide --> "Num. Interactions"
+        yguide --> "Num. of Paths"
         map(length, sample)
-    end 
+    end
     @series begin
         seriestype := :line
-        yguide --> "Mean Interaction Length"
+        yguide --> "Avg. Path Len."
         map(x -> mean(length.(x)), sample)
-    end 
-end 
+    end
+end
