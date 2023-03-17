@@ -1,7 +1,5 @@
 module NetworkPopulations
 
-using Distributed
-
 # Alises for referring to Paths/Interaction Sequences/Samples of Interaction Sequences (purely for readability)
 include("aliases.jl")
 
@@ -88,6 +86,7 @@ include("Metric Models/iMCMC Moves/imcmc_move_type.jl")
 include("Metric Models/iMCMC Moves/edit_allocation_move.jl")
 include("Metric Models/iMCMC Moves/permutation_move.jl")
 include("Metric Models/iMCMC Moves/insert_delete_move.jl")
+include("Metric Models/iMCMC Moves/insert_delete_centered_move.jl")
 include("Metric Models/iMCMC Moves/split_merge_move.jl")
 include("Metric Models/iMCMC Moves/mixture_move.jl")
 include("Metric Models/Samplers/model_sampler.jl")
