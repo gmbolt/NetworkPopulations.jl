@@ -6,33 +6,33 @@ export SimPosteriorModeConditionalMcmcOutput, SimPosteriorDispersionConditionalM
 #    SPF 
 # ==========
 
-struct SpfPosteriorMcmcOutput{T<:Union{Int, String}}
+struct SpfPosteriorMcmcOutput{T<:Union{Int,String}}
     I_sample::Vector{Path{T}}
     γ_sample::Vector{Float64}
     log_post::Dict # Had to do dict since might want different output when (Iᵐ, γ) updated jointly
-    dist::Metric
+    dist::SemiMetric
     I_prior::SPF{T}
     γ_prior::ContinuousUnivariateDistribution
     data::Vector{Path{T}}
     performance_measures::Dict
-end 
+end
 
-struct SpfPosteriorModeConditionalMcmcOutput{T<:Union{Int, String}}
+struct SpfPosteriorModeConditionalMcmcOutput{T<:Union{Int,String}}
     γ_fixed::Float64
     I_sample::Vector{Path{T}}
-    dist::Metric
+    dist::SemiMetric
     I_prior::SPF{T}
     data::Vector{Path{T}}
     performance_measures::Dict
-end 
+end
 
-struct SpfPosteriorDispersionConditionalMcmcOutput{T<:Union{Int, String}}
+struct SpfPosteriorDispersionConditionalMcmcOutput{T<:Union{Int,String}}
     I_fixed::Path{T}
     γ_sample::Vector{Float64}
     γ_prior::ContinuousUnivariateDistribution
     data::Vector{Path{T}}
     performance_measures::Dict
-end 
+end
 
 
 
@@ -43,8 +43,8 @@ function Base.show(io::IO, output::T) where {T<:SpfPosteriorMcmcOutput}
     println(io, "-"^n)
     for (key, value) in output.performance_measures
         println(io, key, ": ", value)
-    end 
-end 
+    end
+end
 
 function Base.show(io::IO, output::T) where {T<:SpfPosteriorModeConditionalMcmcOutput}
     title = "MCMC Sample for SPF Posterior (Mode Conditional)"
@@ -53,8 +53,8 @@ function Base.show(io::IO, output::T) where {T<:SpfPosteriorModeConditionalMcmcO
     println(io, "-"^n)
     for (key, value) in output.performance_measures
         println(io, key, ": ", value)
-    end 
-end 
+    end
+end
 
 function Base.show(io::IO, output::T) where {T<:SpfPosteriorDispersionConditionalMcmcOutput}
     title = "MCMC Sample for SPF Posterior (Dispersion Conditional)"
@@ -63,8 +63,8 @@ function Base.show(io::IO, output::T) where {T<:SpfPosteriorDispersionConditiona
     println(io, "-"^n)
     for (key, value) in output.performance_measures
         println(io, key, ": ", value)
-    end 
-end 
+    end
+end
 
 
 
@@ -74,7 +74,7 @@ struct SisPosteriorMcmcOutput
     posterior::SisPosterior
     suff_stat_trace::Vector{Float64}
     performace_measures::Dict
-end 
+end
 
 struct SisPosteriorModeConditionalMcmcOutput
     γ_fixed::Float64
@@ -82,14 +82,14 @@ struct SisPosteriorModeConditionalMcmcOutput
     posterior::SisPosterior
     suff_stat_trace::Vector{Float64}
     performance_measures::Dict
-end 
+end
 
 struct SisPosteriorDispersionConditionalMcmcOutput
     S_fixed::Vector{Path{Int}}
     γ_sample::Vector{Float64}
     posterior::SisPosterior
     performance_measures::Dict
-end 
+end
 
 
 # ==========
@@ -102,7 +102,7 @@ struct SimPosteriorMcmcOutput
     posterior::SimPosterior
     suff_stat_trace::Vector{Float64}
     performace_measures::Dict
-end 
+end
 
 struct SimPosteriorModeConditionalMcmcOutput
     γ_fixed::Float64
@@ -110,7 +110,7 @@ struct SimPosteriorModeConditionalMcmcOutput
     posterior::SimPosterior
     suff_stat_trace::Vector{Float64}
     performance_measures::Dict
-end 
+end
 
 struct SimPosteriorDispersionConditionalMcmcOutput
     S_fixed::Vector{Path{Int}}
@@ -118,6 +118,6 @@ struct SimPosteriorDispersionConditionalMcmcOutput
     γ_prior::ContinuousUnivariateDistribution
     data::Vector{Vector{Path{Int}}}
     performance_measures::Dict
-end 
+end
 
 
