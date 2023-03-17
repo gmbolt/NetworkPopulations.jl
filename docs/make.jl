@@ -11,7 +11,7 @@ makedocs(;
     format=Documenter.HTML(;
         prettyurls=get(ENV, "CI", "false") == "true",
         canonical="https://gmbolt.github.io/NetworkPopulations.jl",
-        edit_link="master",
+        edit_link="main",
         assets=String[],
         mathengine=Documenter.MathJax2(Dict(:TeX => Dict(
             :Macros => Dict(
@@ -24,8 +24,11 @@ makedocs(;
     ),
     pages=[
         "Introduction" => "index.md",
-        "Standard Networks" => "model_sampling.md",
-        "Interaction Networks" => "model_sampling.md",
+        "Standard Networks" => ["./networks/intro.md"],
+        "Interaction Networks" => [
+            "./interaction_networks/intro.md",
+            "./interaction_networks/samplers.md"
+        ],
         "Reference" => "reference.md"
     ]
 )
