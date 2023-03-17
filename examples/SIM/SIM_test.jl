@@ -41,6 +41,11 @@ plot(
     ylabel="Penalty"
 )
 
+
+x = SimMcmcInsertDelete(β=0.2)
+
+typeof(x)
+
 β1 = 0.7
 imcmc_move = InvMcmcMixtureMove(
     (
