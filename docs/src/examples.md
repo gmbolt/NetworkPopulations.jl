@@ -1,7 +1,7 @@
 # Examples 
 
 ## Model Sampling 
-
+<!-- 
 ```@example model_sampling
 using NetworkPopulations, Distributions 
 model_mode = Hollywood(-3.0, Poisson(7), 10)
@@ -46,4 +46,4 @@ mcmc_out = mcmc_sampler(
     burn_in=1000, lag=50
     )
 plot(mcmc_out)
-```
+``` -->
