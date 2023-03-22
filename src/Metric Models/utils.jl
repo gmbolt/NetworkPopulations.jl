@@ -6,6 +6,31 @@ export get_entropy
 export log_multinomial_ratio, myaddcounts!
 export sample_frechet_mean, sample_frechet_mean_mem, sample_frechet_var
 export rand_delete!, rand_insert!, rand_reflect
+export rand_multivariate_bernoulli, rand_multinomial_dict
+
+
+function rand_multivariate_bernoulli(μ_cusum::Vector{Float64})
+    @assert μ_cusum[1] ≈ 0 "First entry must be 0.0 (for differencing to find probabilities)."
+    β = rand()
+    for i in 1:length(μ_cusum)
+        if β < μ_cusum[i]
+            return i - 1, μ_cusum[i] - μ_cusum[i-1]
+        else
+            continue
+        end
+    end
+end
+
+function rand_multinomial_dict(μ_cusum::Vector{Float64}, ntrials::Int)
+    @assert μ_cusum[1] ≈ 0 "First entry must be 0.0 (for differencing to find probabilities)."
+    out = Dict{Int,Int}()
+    for i in 1:ntrials
+        β = rand()
+        j = findfirst(x -> x > β, μ_cusum)
+        out[j-1] = get(out, j - 1, 0) + 1
+    end
+    return out
+end
 
 function rand_reflect(x, ε, l, u)
     ξ = ε * (2 * rand() - 1)

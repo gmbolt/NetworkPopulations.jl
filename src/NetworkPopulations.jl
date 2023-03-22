@@ -7,7 +7,6 @@ include("aliases.jl")
 include("Types/PathDistributions.jl")
 include("Types/MarkovModels.jl")
 include("Types/distributions.jl")
-include("Types/hollywood_model.jl")
 
 # Data Processing
 # include("Data Processing/EdgeCounts.jl")
@@ -28,6 +27,7 @@ include("Metric Models/SPF.jl")
 include("Metric Models/SIS.jl")
 include("Metric Models/SIM.jl")
 include("Metric Models/utils.jl")
+
 
 # Model sampling 
 # ---------------
@@ -109,5 +109,8 @@ include("Graph Models/SNF/MCMC Moves/gibbs_moves.jl")
 include("Graph Models/SNF/Samplers/SNF_model_sampler.jl")
 include("Graph Models/SNF/Samplers/SNF_posterior_sampler.jl")
 # include("Graph Models/SNF/SNF_multigraph_gibbs_posterior.jl")
+
+# Hollywood model
+include("Types/hollywood_model.jl")
 
 end
