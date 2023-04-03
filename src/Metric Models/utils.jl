@@ -7,7 +7,25 @@ export log_multinomial_ratio, myaddcounts!
 export sample_frechet_mean, sample_frechet_mean_mem, sample_frechet_var
 export rand_delete!, rand_insert!, rand_reflect
 export rand_multivariate_bernoulli, rand_multinomial_dict
+export delete_insert!
 
+
+function delete_insert!(
+    x::Path,
+    δ::Int, d::Int,
+    ind_del::AbstractArray{Int},
+    ind_add::AbstractArray{Int},
+    vals::AbstractArray{Int})
+
+    @views for (i, index) in enumerate(ind_del[1:d])
+        deleteat!(x, index - i + 1)
+    end
+    @views for (index, val) in zip(ind_add[1:(δ-d)], vals[1:(δ-d)])
+        # @show i, index, val
+        insert!(x, index, val)
+    end
+
+end
 
 function rand_multivariate_bernoulli(μ_cusum::Vector{Float64})
     @assert μ_cusum[1] ≈ 0 "First entry must be 0.0 (for differencing to find probabilities)."
