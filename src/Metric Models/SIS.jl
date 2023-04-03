@@ -77,11 +77,11 @@ function Base.similar(
     return SIS(mode, γ, model.dist, model.V, model.K_inner, model.K_outer)
 end
 
-struct SisPosterior
+struct SisPosterior{T<:SemiMetric,S<:ContinuousUnivariateDistribution}
     data::InteractionSequenceSample{Int}
-    S_prior::SIS
+    S_prior::SIS{T}
     γ_prior::ContinuousUnivariateDistribution
-    dist::SemiMetric
+    dist::T
     V::UnitRange{Int}
     K_inner::DimensionRange
     K_outer::DimensionRange
