@@ -88,16 +88,16 @@ struct SisPosterior{T<:SemiMetric,S<:ContinuousUnivariateDistribution}
     sample_size::Int
     function SisPosterior(
         data::InteractionSequenceSample{Int},
-        S_prior::SIS,
-        γ_prior::ContinuousUnivariateDistribution
-    )
+        S_prior::SIS{T},
+        γ_prior::S
+    ) where {T<:SemiMetric,S<:ContinuousUnivariateDistribution}
 
         dist = S_prior.dist
         V = S_prior.V
         K_inner = S_prior.K_inner
         K_outer = S_prior.K_outer
         sample_size = length(data)
-        new(data, S_prior, γ_prior, dist, V, K_inner, K_outer, sample_size)
+        new{T,S}(data, S_prior, γ_prior, dist, V, K_inner, K_outer, sample_size)
     end
 end
 
