@@ -151,9 +151,9 @@ function accept_reject_mode!(
     log_ratio = prop_sample!(S_curr, S_prop, move, pointers, posterior.V)
 
     # Adjust for dimension bounds (reject if outside of them)
-    if any(!(1 ≤ length(x) ≤ posterior.K_inner.u) for x in S_prop)
+    if any(!(posterior.K_inner.l ≤ length(x) ≤ posterior.K_inner.u) for x in S_prop)
         log_α = -Inf
-    elseif !(1 ≤ length(S_prop) ≤ posterior.K_outer.u)
+    elseif !(posterior.K_outer.l ≤ length(S_prop) ≤ posterior.K_outer.u)
         log_α = -Inf
     else
         log_α = eval_accept_prob(
