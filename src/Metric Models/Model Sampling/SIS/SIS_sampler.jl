@@ -4,50 +4,6 @@ export imcmc_multinomial_edit_accept_reject!, unif_multinomial_sample_tester
 export imcmc_trans_dim_accept_reject!, draw_sample!, draw_sample
 export rand_delete!, rand_insert!, accept_reject!
 
-function rand_delete!(x::Path{Int}, d::Int)
-
-    n = length(x)
-    k = d
-    i = 0
-    live_index = 0
-    while k > 0
-        u = rand()
-        q = (n - k) / n
-        while q > u  # skip
-            i += 1
-            n -= 1
-            q *= (n - k) / n
-        end
-        i += 1
-        # i is now index to delete 
-        deleteat!(x, i - live_index)
-        live_index += 1
-        n -= 1
-        k -= 1
-    end
-
-end
-
-function rand_insert!(x::Path{Int}, a::Int, V::UnitRange)
-
-    n = length(x) + a
-    k = a
-    i = 0
-    while k > 0
-        u = rand()
-        q = (n - k) / n
-        while q > u  # skip
-            i += 1
-            n -= 1
-            q *= (n - k) / n
-        end
-        i += 1
-        # i is now index to insert
-        insert!(x, i, rand(V))
-        n -= 1
-        k -= 1
-    end
-end
 
 # Edit Allocation Move 
 # --------------------

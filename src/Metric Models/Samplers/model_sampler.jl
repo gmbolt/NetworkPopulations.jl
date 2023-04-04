@@ -50,23 +50,37 @@ acceptance_prob(mcmc::InvMcmcSampler) = acceptance_prob(mcmc.move)
 function eval_accept_prob(
     S_curr::InteractionSequence{Int},
     S_prop::InteractionSequence{Int},
-    model::T,
+    model::SIS,
     log_ratio::Float64
-) where {T<:Union{SIS,SIM}}
+)
 
     mode, γ, dist = (model.mode, model.γ, model.dist)
 
-    # @show S_curr, S_prop
     log_lik_ratio = -γ * (
         dist(mode, S_prop) - dist(mode, S_curr)
     )
 
-    if typeof(model) == SIM
-        log_multinom_term = log_multinomial_ratio(S_curr, S_prop)
-        return log_lik_ratio + log_ratio + log_multinom_term
-    else
-        return log_lik_ratio + log_ratio
-    end
+    return log_lik_ratio + log_ratio
+
+end
+
+function eval_accept_prob(
+    S_curr::InteractionSequence{Int},
+    S_prop::InteractionSequence{Int},
+    model::SIM,
+    log_ratio::Float64
+)
+
+    mode, γ, dist = (model.mode, model.γ, model.dist)
+
+    log_lik_ratio = -γ * (
+        dist(mode, S_prop) - dist(mode, S_curr)
+    )
+
+    # For the SIM model we also need to evaluate a multinomial ratio.
+    log_multinom_term = log_multinomial_ratio(S_curr, S_prop)
+    return log_lik_ratio + log_ratio + log_multinom_term
+
 
 end
 
@@ -83,12 +97,12 @@ function accept_reject!(
     log_ratio = prop_sample!(S_curr, S_prop, move, pointers, model.V)
 
     # Catch out of bounds proposals (reject them, i.e. 0 acc prob)
-    if any(!(1 ≤ length(x) ≤ model.K_inner.u) for x in S_prop)
-        log_α = -Inf
-    elseif !(1 ≤ length(S_prop) ≤ model.K_outer.u)
-        log_α = -Inf
+    log_α = if any(!(model.K_inner.l ≤ length(x) ≤ model.K_inner.u) for x in S_prop)
+        -Inf
+    elseif !(model.K_outer.l ≤ length(S_prop) ≤ model.K_outer.u)
+        -Inf
     else
-        log_α = eval_accept_prob(S_curr, S_prop, model, log_ratio)
+        eval_accept_prob(S_curr, S_prop, model, log_ratio)
     end
 
     # @show log_α

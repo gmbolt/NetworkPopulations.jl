@@ -5,7 +5,107 @@ export get_true_dist_dict, get_true_dist_vec
 export get_entropy
 export log_multinomial_ratio, myaddcounts!
 export sample_frechet_mean, sample_frechet_mean_mem, sample_frechet_var
+export rand_delete!, rand_insert!, rand_reflect
+export rand_multivariate_bernoulli, rand_multinomial_dict
+export delete_insert!
 
+
+function delete_insert!(
+    x::Path,
+    δ::Int, d::Int,
+    ind_del::AbstractArray{Int},
+    ind_add::AbstractArray{Int},
+    vals::AbstractArray{Int})
+
+    @views for (i, index) in enumerate(ind_del[1:d])
+        deleteat!(x, index - i + 1)
+    end
+    @views for (index, val) in zip(ind_add[1:(δ-d)], vals[1:(δ-d)])
+        # @show i, index, val
+        insert!(x, index, val)
+    end
+
+end
+
+function rand_multivariate_bernoulli(μ_cusum::Vector{Float64})
+    @assert μ_cusum[1] ≈ 0 "First entry must be 0.0 (for differencing to find probabilities)."
+    β = rand()
+    for i in 1:length(μ_cusum)
+        if β < μ_cusum[i]
+            return i - 1, μ_cusum[i] - μ_cusum[i-1]
+        else
+            continue
+        end
+    end
+end
+
+function rand_multinomial_dict(μ_cusum::Vector{Float64}, ntrials::Int)
+    @assert μ_cusum[1] ≈ 0 "First entry must be 0.0 (for differencing to find probabilities)."
+    out = Dict{Int,Int}()
+    for i in 1:ntrials
+        β = rand()
+        j = findfirst(x -> x > β, μ_cusum)
+        out[j-1] = get(out, j - 1, 0) + 1
+    end
+    return out
+end
+
+function rand_reflect(x, ε, l, u)
+    ξ = ε * (2 * rand() - 1)
+    y = x + ξ
+    if y < l
+        return 2 * l - y
+    elseif y > u
+        return 2 * u - y
+    else
+        return y
+    end
+end
+
+function rand_delete!(x::Path{Int}, d::Int)
+
+    n = length(x)
+    k = d
+    i = 0
+    live_index = 0
+    while k > 0
+        u = rand()
+        q = (n - k) / n
+        while q > u  # skip
+            i += 1
+            n -= 1
+            q *= (n - k) / n
+        end
+        i += 1
+        # i is now index to delete 
+        deleteat!(x, i - live_index)
+        live_index += 1
+        n -= 1
+        k -= 1
+    end
+
+end
+
+function rand_insert!(x::Path{Int}, a::Int, V::UnitRange)
+
+    n = length(x) + a
+    k = a
+    i = 0
+    while k > 0
+        u = rand()
+        q = (n - k) / n
+        while q > u  # skip
+            i += 1
+            n -= 1
+            q *= (n - k) / n
+        end
+        i += 1
+        # i is now index to insert
+        insert!(x, i, rand(V))
+        n -= 1
+        k -= 1
+    end
+end
 
 function sample_frechet_mean(
     data::Vector{T},

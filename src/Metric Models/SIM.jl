@@ -59,26 +59,26 @@ function Base.similar(
     return SIM(mode, γ, model.dist, model.V, model.K_inner, model.K_outer)
 end
 
-struct SimPosterior
+struct SimPosterior{T<:SemiMetric,S<:ContinuousUnivariateDistribution}
     data::InteractionSequenceSample{Int}
-    S_prior::SIM
-    γ_prior::ContinuousUnivariateDistribution
-    dist::SemiMetric
+    S_prior::SIM{T}
+    γ_prior::S
+    dist::T
     V::AbstractArray{Int}
     K_inner::DimensionRange
     K_outer::DimensionRange
     sample_size::Int
     function SimPosterior(
         data::InteractionSequenceSample{Int},
-        S_prior::SIM,
-        γ_prior::ContinuousUnivariateDistribution
-    )
+        S_prior::SIM{T},
+        γ_prior::S
+    ) where {T<:SemiMetric,S<:ContinuousUnivariateDistribution}
 
         dist = S_prior.dist
         V = S_prior.V
         K_inner = S_prior.K_inner
         K_outer = S_prior.K_outer
         sample_size = length(data)
-        new(data, S_prior, γ_prior, dist, V, K_inner, K_outer, sample_size)
+        new{T,S}(data, S_prior, γ_prior, dist, V, K_inner, K_outer, sample_size)
     end
 end

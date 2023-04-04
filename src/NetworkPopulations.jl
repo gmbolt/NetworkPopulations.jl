@@ -7,7 +7,6 @@ include("aliases.jl")
 include("Types/PathDistributions.jl")
 include("Types/MarkovModels.jl")
 include("Types/distributions.jl")
-include("Types/hollywood_model.jl")
 
 # Data Processing
 # include("Data Processing/EdgeCounts.jl")
@@ -29,56 +28,57 @@ include("Metric Models/SIS.jl")
 include("Metric Models/SIM.jl")
 include("Metric Models/utils.jl")
 
+
 # Model sampling 
 # ---------------
 # Types
 include("Metric Models/Model Sampling/Types/initalisers.jl")
-include("Metric Models/Model Sampling/Types/SIM_samplers.jl")
-include("Metric Models/Model Sampling/Types/SIS_samplers.jl")
-include("Metric Models/Model Sampling/Types/SPF_samplers.jl")
-include("Metric Models/Model Sampling/Types/outputs.jl")
+# include("Metric Models/Model Sampling/Types/SIM_samplers.jl")
+# include("Metric Models/Model Sampling/Types/SIS_samplers.jl")
+# include("Metric Models/Model Sampling/Types/SPF_samplers.jl")
+# include("Metric Models/Model Sampling/Types/outputs.jl")
 # SIS 
-include("Metric Models/Model Sampling/SIS/SIS_sampler.jl")
-include("Metric Models/Model Sampling/SIS/SIS_centered_simple.jl")
-include("Metric Models/Model Sampling/SIS/SIS_gibbs.jl")
-include("Metric Models/Model Sampling/SIS/split_merge/SIS_split_merge_helpers.jl")
-include("Metric Models/Model Sampling/SIS/split_merge/SIS_split_merge.jl")
+# include("Metric Models/Model Sampling/SIS/SIS_sampler.jl")
+# include("Metric Models/Model Sampling/SIS/SIS_centered_simple.jl")
+# include("Metric Models/Model Sampling/SIS/SIS_gibbs.jl")
+# include("Metric Models/Model Sampling/SIS/split_merge/SIS_split_merge_helpers.jl")
+# include("Metric Models/Model Sampling/SIS/split_merge/SIS_split_merge.jl")
 # SIM 
-include("Metric Models/Model Sampling/SIM/SIM_sampler.jl")
-include("Metric Models/Model Sampling/SIM/SIM_subpath.jl")
-include("Metric Models/Model Sampling/SIM/SIM_gibbs.jl")
-include("Metric Models/Model Sampling/SIM/SIM_length_centered.jl")
-include("Metric Models/Model Sampling/SIM/SIM_proportional.jl")
+# include("Metric Models/Model Sampling/SIM/SIM_sampler.jl")
+# include("Metric Models/Model Sampling/SIM/SIM_subpath.jl")
+# include("Metric Models/Model Sampling/SIM/SIM_gibbs.jl")
+# include("Metric Models/Model Sampling/SIM/SIM_length_centered.jl")
+# include("Metric Models/Model Sampling/SIM/SIM_proportional.jl")
 # SPF 
-include("Metric Models/Model Sampling/SPF/SPF_sampler.jl")
-include("Metric Models/Model Sampling/SPF/SPF_dc_sampler.jl")
+# include("Metric Models/Model Sampling/SPF/SPF_sampler.jl")
+# include("Metric Models/Model Sampling/SPF/SPF_dc_sampler.jl")
 # Summaries 
-include("Metric Models/Model Sampling/Summaries/plot_recipes.jl")
-include("Metric Models/Model Sampling/Summaries/misc_summaries.jl")
+# include("Metric Models/Model Sampling/Summaries/plot_recipes.jl")
+# include("Metric Models/Model Sampling/Summaries/misc_summaries.jl")
 
 # Posterior Sampling
 # ------------------
 # Types
-include("Metric Models/Posterior Sampling/Types/SIM_samplers.jl")
-include("Metric Models/Posterior Sampling/Types/SIS_samplers.jl")
-include("Metric Models/Posterior Sampling/Types/SPF_samplers.jl")
-include("Metric Models/Posterior Sampling/Types/outputs.jl")
-include("Metric Models/Posterior Sampling/Types/predictives.jl")
-# Sampler files
-include("Metric Models/Posterior Sampling/auxiliary_terms_eval.jl")
-include("Metric Models/Posterior Sampling/cooccurrence_matrices.jl")
-include("Metric Models/Posterior Sampling/informed_insertion_distribution.jl")
-include("Metric Models/Posterior Sampling/iex_SIM.jl")
-include("Metric Models/Posterior Sampling/iex_SIM_split_merge.jl")
-include("Metric Models/Posterior Sampling/iex_SIM_proportional.jl")
-include("Metric Models/Posterior Sampling/iex_SIM_dependent.jl")
-include("Metric Models/Posterior Sampling/iex_SIM_with_kick.jl")
-include("Metric Models/Posterior Sampling/iex_SIS.jl")
-include("Metric Models/Posterior Sampling/iex_SPF.jl")
-# Summaries
-include("Metric Models/Posterior Sampling/Summaries/plot_recipes.jl")
-include("Metric Models/Posterior Sampling/Summaries/misc_summaries.jl")
-include("Metric Models/Posterior Sampling/Summaries/predictive_summaries.jl")
+# include("Metric Models/Posterior Sampling/Types/SIM_samplers.jl")
+# include("Metric Models/Posterior Sampling/Types/SIS_samplers.jl")
+# include("Metric Models/Posterior Sampling/Types/SPF_samplers.jl")
+# include("Metric Models/Posterior Sampling/Types/outputs.jl")
+# include("Metric Models/Posterior Sampling/Types/predictives.jl")
+# # Sampler files
+# include("Metric Models/Posterior Sampling/auxiliary_terms_eval.jl")
+# include("Metric Models/Posterior Sampling/cooccurrence_matrices.jl")
+# include("Metric Models/Posterior Sampling/informed_insertion_distribution.jl")
+# include("Metric Models/Posterior Sampling/iex_SIM.jl")
+# include("Metric Models/Posterior Sampling/iex_SIM_split_merge.jl")
+# include("Metric Models/Posterior Sampling/iex_SIM_proportional.jl")
+# include("Metric Models/Posterior Sampling/iex_SIM_dependent.jl")
+# include("Metric Models/Posterior Sampling/iex_SIM_with_kick.jl")
+# include("Metric Models/Posterior Sampling/iex_SIS.jl")
+# include("Metric Models/Posterior Sampling/iex_SPF.jl")
+# # Summaries
+# include("Metric Models/Posterior Sampling/Summaries/plot_recipes.jl")
+# include("Metric Models/Posterior Sampling/Summaries/misc_summaries.jl")
+# include("Metric Models/Posterior Sampling/Summaries/predictive_summaries.jl")
 
 
 # iMCMC Moves (new structure)
@@ -91,7 +91,8 @@ include("Metric Models/iMCMC Moves/split_merge_move.jl")
 include("Metric Models/iMCMC Moves/mixture_move.jl")
 include("Metric Models/Samplers/model_sampler.jl")
 include("Metric Models/Samplers/posterior_sampler.jl")
-
+include("Metric Models/Samplers/summaryplot.jl")
+include("Metric Models/Samplers/legacy_constructors.jl")
 
 # Graphs Models
 # =============
@@ -108,5 +109,8 @@ include("Graph Models/SNF/MCMC Moves/gibbs_moves.jl")
 include("Graph Models/SNF/Samplers/SNF_model_sampler.jl")
 include("Graph Models/SNF/Samplers/SNF_posterior_sampler.jl")
 # include("Graph Models/SNF/SNF_multigraph_gibbs_posterior.jl")
+
+# Hollywood model
+include("Types/hollywood_model.jl")
 
 end
