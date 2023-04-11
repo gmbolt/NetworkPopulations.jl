@@ -21,14 +21,14 @@ end
 
 
 """
-    pred_missing(S::InterSeq{Int}, ind::Tuple{Int,Int}, posterior_out::PosteriorMcmcOuput)
+    pred_missing(S::InterSeq{Int}, ind::Tuple{Int,Int}, posterior_out::PosteriorMcmcOutput)
 
 Posterior predictive for missing entry. Returns instance of `SingleMissingPredictive` for predicting the entry of `S` indexed by `ind`.
 """
 function pred_missing(
     S::Vector{Vector{Int}},
     ind::Tuple{Int,Int},
-    posterior_out::PosteriorMcmcOuput
+    posterior_out::PosteriorMcmcOutput
 )
 
     posterior = posterior_out.posterior
