@@ -5,8 +5,8 @@ model_mode = Hollywood(-3.0, Poisson(7), 10)
 S = sample(model_mode, 10)
 S = [[1, 1, 1, 1], [2, 2, 2, 2], [3, 3, 3, 3, 3, 3]]
 V = 1:20
-K_inner = DimensionRange(1, 50)
-K_outer = DimensionRange(1, 50)
+K_inner = DimensionRange(2, 50)
+K_outer = DimensionRange(2, 50)
 
 mean_path_len = 0
 pen_par = ParametricPenalty(2, 2.0, interc=2.0)
