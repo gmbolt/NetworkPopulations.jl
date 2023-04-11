@@ -1,5 +1,5 @@
 using RecipesBase, Measures
-export InvMcmcSampler, McmcOutput
+export InvMcmcSampler
 
 """
     InvMcmcSampler(move::InvMcmcMove; kwargs...)
@@ -26,24 +26,6 @@ end
 
 Base.show(io::IO, x::InvMcmcSampler{T}) where {T} = print(io, typeof(x))
 
-struct McmcOutput{T<:Union{SIS,SIM}}
-    sample::Vector{Vector{Path{Int}}}  # The sample
-    model::T
-end
-
-Base.show(io::IO, x::McmcOutput) = print(io, typeof(x))
-
-@recipe function f(output::McmcOutput)
-    model = output.model
-    sample = output.sample
-    x = map(x -> model.dist(model.mode, x), sample)
-    xguide --> "Sample"
-    yguide --> "Distance from Mode"
-    legend --> false
-    size --> (800, 300)
-    margin --> 5mm
-    x
-end
 
 acceptance_prob(mcmc::InvMcmcSampler) = acceptance_prob(mcmc.move)
 

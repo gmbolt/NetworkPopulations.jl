@@ -89,10 +89,15 @@ include("Metric Models/iMCMC Moves/insert_delete_move.jl")
 include("Metric Models/iMCMC Moves/insert_delete_centered_move.jl")
 include("Metric Models/iMCMC Moves/split_merge_move.jl")
 include("Metric Models/iMCMC Moves/mixture_move.jl")
+include("Metric Models/Samplers/outputs.jl")
 include("Metric Models/Samplers/model_sampler.jl")
 include("Metric Models/Samplers/posterior_sampler.jl")
 include("Metric Models/Samplers/summaryplot.jl")
 include("Metric Models/Samplers/legacy_constructors.jl")
+
+include("Metric Models/summaries/predictives/missing_entry.jl")
+include("Metric Models/summaries/predictives/posterior_predictive.jl")
+include("Metric Models/summaries/misc_summaries.jl")
 
 # Graphs Models
 # =============
