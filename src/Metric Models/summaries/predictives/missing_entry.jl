@@ -84,31 +84,7 @@ function pred_missing(
     return SingleMissingPredictive(S, ind, μ)
 end
 
-"""
-    L2_squared_error(pred_1::SingleMissingPredictive, pred_2::SingleMissingPredictive)
 
-Evaluate the L2-squared distance between the probability vectors of the passed missing entry 
-predictives. 
-"""
-function L2_sqaured_error(
-    pred_1::SingleMissingPredictive,
-    pred_2::SingleMissingPredictive
-)
-    return sum((pred_1.p .- pred_2.p) .^ 2)
-end
-
-"""
-    mean_squared_error(pred_vec_1::Vector{SingleMissingPredictive}, pred_vec_2::Vector{SingleMissingPredictive})
-
-Evaluate the mean squared error of missing entry predictives in the two passed vectors. Uses the L2-squared
-error between predictives (see `L2_sqaured_error()`).
-"""
-function mean_squared_error(
-    pred_vec_1::Vector{SingleMissingPredictive},
-    pred_vec_2::Vector{SingleMissingPredictive}
-)
-    return mean(L2_sqaured_error(x, y) for (x, y) in zip(pred_vec_1, pred_vec_2))
-end
 
 """
     get_prediction(predictive::SingleMissingPredictive)
