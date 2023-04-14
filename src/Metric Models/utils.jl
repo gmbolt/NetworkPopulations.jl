@@ -242,12 +242,12 @@ Calculate the sample space cardinality.
 function cardinality(
     model::SIS
 )::Int
-    if (model.K_inner == Inf) | (model.K_outer == Inf)
+    if (model.K_inner.u == Inf) | (model.K_outer.u == Inf)
         return Inf
     else
         V = length(model.V)
-        num_paths = V * (V^model.K_inner - 1) / (V - 1)
-        return num_paths * (num_paths^model.K_outer - 1) / (num_paths - 1)
+        num_paths = V * (V^model.K_inner.u - 1) / (V - 1)
+        return num_paths * (num_paths^model.K_outer.u - 1) / (num_paths - 1)
     end
 end
 
@@ -276,7 +276,7 @@ Returns an iterator over all interaction sequences over the vertex set `V`, with
 * `L` = max number of interactions, must be an integer.
 """
 function eachinterseq(
-    V::Vector{T},
+    V::UnitRange,
     K_inner::Int,
     K_outer::Int) where {T<:Union{Int,String}}
 
@@ -285,7 +285,7 @@ function eachinterseq(
     )
 end
 
-function eachpath(V, K::Int)
+function eachpath(V::UnitRange, K::Int)
     return Base.Iterators.flatten(
         [Base.Iterators.product([V for j = 1:k]...) for k = 1:K]
     )
@@ -296,8 +296,10 @@ Returns vector with all elements in the sample space.
 """
 function get_sample_space(model::SIS)
     z = Vector{Vector{Path{Int}}}()
+    iter = Progress(cardinality(model), 1, "Getting sample space...")  # Loading bar. Minimum update interval: 1 second
     for I in eachinterseq(model.V, model.K_inner.u, model.K_outer.u)
         push!(z, [collect(p) for p in I])
+        next!(iter)
     end
     return z
 end
@@ -305,7 +307,7 @@ end
 function get_sample_space(model::SIM)
 
     z = Vector{Vector{Path{Int}}}()
-    for I in eachinterseq(model.V, model.K_inner.u, model.K_outer.l)
+    for I in eachinterseq(model.V, model.K_inner.u, model.K_outer.u)
         push!(z, [collect(p) for p in I])
     end
 
@@ -339,7 +341,7 @@ function get_normalising_const(
 
     iter = Progress(cardinality(model), 1, "Evaluating normalising constant...")  # Loading bar. Minimum update interval: 1 second
     Z = 0.0
-    for S in eachinterseq(model.V, model.K_inner, model.K_outer)
+    for S in eachinterseq(model.V, model.K_inner.u, model.K_outer.u)
         Z += pmf_unormalised(model, [collect(p) for p in S])
         next!(iter)
     end
