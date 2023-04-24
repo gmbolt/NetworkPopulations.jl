@@ -55,7 +55,7 @@ function pred_missing(
         μ += μ_tmp
     end
 
-    μ /= sum(μ)
+    μ /= length(posterior_out.S_sample)
 
     return SingleMissingPredictive(S, ind, μ)
 end
