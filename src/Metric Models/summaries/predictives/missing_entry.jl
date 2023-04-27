@@ -32,9 +32,9 @@ function eval_posterior_predictive(
     Sₓ = deepcopy(S)
     # Maps a mode to the V (num vertices) different distances to value S with different value in ind 
     dists_to_vals = Dict{Vector{Vector{Int}},Vector{Real}}()
-    dist_vec = zeros(V)
-    μ_tmp = zeros(V)
-    μ = zeros(V)
+    dist_vec = zeros(length(V))
+    μ_tmp = zeros(length(V))
+    μ = zeros(length(V))
 
     for (mode, γ) in zip(S_sample, γ_sample)
         if mode ∉ keys(dists_to_vals)
