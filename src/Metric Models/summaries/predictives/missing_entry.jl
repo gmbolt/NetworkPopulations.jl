@@ -1,6 +1,6 @@
 using StatsBase
 export SingleMissingPredictive
-export pred_missing, get_prediction, get_truth, get_pred_accuracy
+export pred_missing, get_prediction, get_truth, get_pred_accuracy, eval_posterior_predictive
 
 """
 A predictive distribution for a single missing entry. 
@@ -20,31 +20,25 @@ function Base.show(io::IO, pred::SingleMissingPredictive)
 end
 
 
-"""
-    pred_missing(S::InterSeq{Int}, ind::Tuple{Int,Int}, posterior_out::PosteriorMcmcOutput)
-
-Posterior predictive for missing entry. Returns instance of `SingleMissingPredictive` for predicting the entry of `S` indexed by `ind`.
-"""
-function pred_missing(
+function eval_posterior_predictive(
     S::Vector{Vector{Int}},
     ind::Tuple{Int,Int},
-    posterior_out::PosteriorMcmcOutput
+    S_sample::InteractionSequenceSample{Int},
+    γ_sample::Vector{Float64},
+    d::SemiMetric,
+    V::UnitRange
 )
 
-    posterior = posterior_out.posterior
-    d = posterior.dist
     Sₓ = deepcopy(S)
     # Maps a mode to the V (num vertices) different distances to value S with different value in ind 
     dists_to_vals = Dict{Vector{Vector{Int}},Vector{Real}}()
-    V = length(posterior.V)
-    # @show V
     dist_vec = zeros(V)
     μ_tmp = zeros(V)
     μ = zeros(V)
 
-    for (mode, γ) in zip(posterior_out.S_sample, posterior_out.γ_sample)
+    for (mode, γ) in zip(S_sample, γ_sample)
         if mode ∉ keys(dists_to_vals)
-            for x in 1:V
+            for x in V
                 Sₓ[ind[1]][ind[2]] = x
                 dist_vec[x] = d(Sₓ, mode)
             end
@@ -55,9 +49,30 @@ function pred_missing(
         μ += μ_tmp
     end
 
-    μ /= length(posterior_out.S_sample)
+    μ /= sum(μ)
 
     return SingleMissingPredictive(S, ind, μ)
+end
+
+
+
+"""
+    pred_missing(S::InterSeq{Int}, ind::Tuple{Int,Int}, posterior_out::PosteriorMcmcOutput)
+
+Posterior predictive for missing entry. Returns instance of `SingleMissingPredictive` for predicting the entry of `S` indexed by `ind`.
+"""
+function pred_missing(
+    S::Vector{Vector{Int}},
+    ind::Tuple{Int,Int},
+    posterior_out::PosteriorMcmcOutput
+)
+    return eval_posterior_predictive(
+        S, ind,
+        posterior_out.S_sample,
+        posterior_out.γ_sample,
+        posterior_out.posterior.dist,
+        posterior_out.posterior.V
+    )
 end
 
 
