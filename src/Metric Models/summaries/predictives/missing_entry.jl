@@ -1,6 +1,6 @@
 using StatsBase
 export SingleMissingPredictive
-export pred_missing, get_prediction, get_truth, get_pred_accuracy, eval_posterior_predictive
+export pred_missing, get_prediction_rand, get_truth, get_pred_accuracy, eval_posterior_predictive
 
 """
 A predictive distribution for a single missing entry. 
@@ -99,17 +99,29 @@ function pred_missing(
     return SingleMissingPredictive(S, ind, μ)
 end
 
-
-
 """
     get_prediction(predictive::SingleMissingPredictive)
 
-Query missing entry predictive for prediticted value. Returns tuple of (pred_val, entropy) containing 
+Query missing entry predictive for predicticted values. 
+
+Returns a vector of MAP values (can be more than one if there is a tie).
+"""
+function get_prediction(
+    pred::SingleMissingPredictive
+)
+    max_prob = maximum(pred.p)  # MAP 
+    return findall(pred.p .== max_prob) # Vertices with max MAP
+end
+
+"""
+    get_prediction_rand(predictive::SingleMissingPredictive)
+
+Query missing entry predictive for predicticted value. Returns tuple of (pred_val, entropy) containing 
 the prediction and entropy of the predictive distribution.
 
 Note: if there is a tie, we sample randomly.
 """
-function get_prediction(
+function get_prediction_rand(
     pred::SingleMissingPredictive
 )
     max_prob = maximum(pred.p)  # MAP 
@@ -137,7 +149,7 @@ end
 
 Test whether prediction was correct. Returns Boolean. 
 """
-was_correct(pred::SingleMissingPredictive) = (get_prediction(pred)[1] == get_truth(pred))
+was_correct(pred::SingleMissingPredictive) = (get_prediction_rand(pred)[1] == get_truth(pred))
 
 
 """
