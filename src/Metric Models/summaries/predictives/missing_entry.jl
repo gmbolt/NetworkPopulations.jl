@@ -1,6 +1,6 @@
 using StatsBase
 export SingleMissingPredictive
-export pred_missing, get_prediction_rand, get_truth, get_pred_accuracy, eval_posterior_predictive
+export pred_missing, get_prediction, get_prediction_rand, get_truth, get_pred_accuracy, eval_posterior_predictive
 
 """
 A predictive distribution for a single missing entry. 
