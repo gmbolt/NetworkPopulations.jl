@@ -19,11 +19,17 @@ function Base.show(io::IO, pred::SingleMissingPredictive)
     println(io, "Missing entry: $(pred.ind)")
 end
 
+"""
+    eval_posterior_predictive(S::InterSeq{Int}, ind::Tuple{Int,Int}, S_sample::InterSeqSample{Int}, γ_sample::Vector{Float64}, d::SemiMetric, V::UnitRange)
 
+Evaluating posterior predictive of single missing entry. Takes in single observation `S` and index `ind` of missing entry, along with 
+posterior samples for the mode `S_sample` and dispersion `γ_sample`, distance metric `d` and vertex set `V`, returning a instance of 
+`SingleMissingPredictive`, which can be used to make predictions etc. 
+"""
 function eval_posterior_predictive(
-    S::Vector{Vector{Int}},
+    S::InterSeq{Int},
     ind::Tuple{Int,Int},
-    S_sample::InteractionSequenceSample{Int},
+    S_sample::InterSeqSample{Int},
     γ_sample::Vector{Float64},
     d::SemiMetric,
     V::UnitRange
@@ -153,7 +159,7 @@ was_correct(pred::SingleMissingPredictive) = (get_prediction_rand(pred)[1] == ge
 
 
 """
-    get_pred_accuracy(preditives::Vector{SingleMissingPredictive})
+    get_pred_accuracy(preds::Vector{SingleMissingPredictive})
 
 Given a vector of missing entry predictives, evaluate the predictive accuracy observed, that is,
 the proportion of times the correct prediction was made. 
