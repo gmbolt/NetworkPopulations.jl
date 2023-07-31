@@ -32,6 +32,7 @@ struct SIS{T<:SemiMetric}
     K_outer::DimensionRange # Maximum path (interaction) length
 end
 
+# Define some other constructors
 SIS(
     mode::InteractionSequence{Int},
     γ::Float64,
@@ -54,6 +55,16 @@ SIS(
     DimensionRange(1, K_inner),
     DimensionRange(1, K_outer)
 )
+
+# Allows construction via just number of vertices 
+SIS(
+    mode::InteractionSequence{Int},
+    γ::Float64,
+    dist::SemiMetric,
+    V::Int,
+    args...
+) = SIS(mode, γ, dist, 1:V, args...)
+
 
 function Base.show(
     io::IO, model::SIS

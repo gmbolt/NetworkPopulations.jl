@@ -9,6 +9,9 @@ export rand_delete!, rand_insert!, rand_reflect
 export rand_multivariate_bernoulli, rand_multinomial_dict
 export delete_insert!
 
+# This file contains some utility functions related to the interaction network 
+# models, such as enumeration of sample spaces or random insertion / deletion of 
+# vector entries (used in proposal generation of MCMC samplers)
 
 function delete_insert!(
     x::Path,

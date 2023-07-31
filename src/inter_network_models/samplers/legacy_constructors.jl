@@ -9,7 +9,11 @@ export SisMcmcInsertDelete, SimMcmcInsertDelete
 # Used to have separate samplers for each move...
 
 """
-A constructor for a now depereciated sampler class, defined for backwards compatability. Will return the equivalent class in the current type hierarchy.
+A constructor for a now depereciated sampler class, defined for backwards compatability. 
+Will return the equivalent class in the current type hierarchy.
+
+This regards a sampler for the SIS model combining edit allocation move 
+with the path insertion deletion move. 
 """
 function SisMcmcInsertDelete(;
     K=100,
@@ -39,6 +43,10 @@ end
 
 """
 A constructor for a now depereciated sampler class, defined for backwards compatability. Will return the equivalent class in the current type hierarchy.
+
+
+This regards a sampler for the SIM model combining edit allocation move 
+with the path insertion deletion move. 
 """
 function SimMcmcInsertDelete(;
     K=100,
