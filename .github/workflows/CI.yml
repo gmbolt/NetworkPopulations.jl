@@ -33,10 +33,15 @@ jobs:
           version: ${{ matrix.version }}
           arch: ${{ matrix.arch }}
       - uses: julia-actions/cache@v1
-      - run: | # Install NetworkDistances.jl
-            julia -e '
-            using Pkg
-            Pkg.add(url=\"https://github.com/gmbolt/NetworkDistances.jl\")'
+      - run: | # Install NetworkDistances.jl. Note we have to escape characters in Windows
+            if [ "$RUNNER_OS" == "Windows" ]; then
+              julia -e '
+              using Pkg
+              Pkg.add(url=\"https://github.com/gmbolt/NetworkDistances.jl\")'
+            else
+              julia -e '
+              using Pkg
+              Pkg.add(url="https://github.com/gmbolt/NetworkDistances.jl")'
       - uses: julia-actions/julia-buildpkg@v1
       - uses: julia-actions/julia-runtest@v1
       - uses: julia-actions/julia-processcoverage@v1
