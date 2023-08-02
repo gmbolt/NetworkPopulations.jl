@@ -1,4 +1,4 @@
-using Distances
+using Distances, Multisets
 export pmf_unormalised, cardinality, eachinterseq, eachpath
 export get_sample_space, get_normalising_const
 export get_true_dist_dict, get_true_dist_vec
