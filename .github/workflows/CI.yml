@@ -33,7 +33,7 @@ jobs:
           version: ${{ matrix.version }}
           arch: ${{ matrix.arch }}
       - uses: julia-actions/cache@v1
-      - if: matrix.os != 'ubuntu-latest'
+      - if: matrix.os != 'windows-latest'
         run: | # Install NetworkDistances.jl. Note we have to escape characters in Windows
             julia -e '
             using Pkg
