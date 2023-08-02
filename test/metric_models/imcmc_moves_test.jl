@@ -1,4 +1,5 @@
 # Here we just check model samplers work with all moves 
+using InteractiveUtils
 @testset "imcmc_moves" begin
 
     # Fixed parameters 
