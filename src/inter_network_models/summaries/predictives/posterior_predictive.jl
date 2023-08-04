@@ -7,18 +7,17 @@ A wrapper for the posterior predictive.
 
 Note: the field `model_type` is used for constructing models.
 """
-struct PosteriorPredictive{T<:PosteriorMcmcOutput}
-    posterior_out::T
+struct PosteriorPredictive{T<:Union{SisPosterior,SimPosterior}}
+    posterior_out::PosteriorMcmcOutput{T}
     model_tyle::DataType
-    function PosteriorPredictive(posterior_out::T) where {T<:PosteriorMcmcOutput}
+    function PosteriorPredictive(posterior_out::PosteriorMcmcOutput{T}) where {T<:Union{SisPosterior,SimPosterior}}
         new{T}(posterior, typeof(posterior_out.posterior.S_prior))
     end
 end
 
 
-
 function draw_sample!(
-    out::Vector{Vector{Vector{Int}}},
+    out::InteractionSequenceSample{Int},
     mcmc::InvMcmcSampler,
     predictive::PosteriorPredictive
 )
@@ -40,7 +39,7 @@ function draw_sample!(
 end
 
 function draw_sample!(
-    out::Vector{InteractionSequenceSample{Int}}, # Note difference here with prev function 
+    out::Vector{InteractionSequenceSample{Int}}, # Note here we have vector of samples
     mcmc::InvMcmcSampler,
     predictive::PosteriorPredictive
 )

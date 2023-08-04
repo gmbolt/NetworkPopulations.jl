@@ -24,6 +24,7 @@ function notin(
 end
 
 struct SIS{T<:SemiMetric}
+    "Mode"
     mode::Vector{Path{Int}} # Mode
     γ::Float64 # Precision
     dist::T # Distance metric
@@ -31,6 +32,17 @@ struct SIS{T<:SemiMetric}
     K_inner::DimensionRange # Maximum interaction sequence size
     K_outer::DimensionRange # Maximum path (interaction) length
 end
+
+"""
+Construct SIS model with only number of vertices
+"""
+SIS(
+    mode::InteractionSequence{Int},
+    γ::Float64,
+    dist::SemiMetric,
+    V::Int,
+    args...
+) = SIS(mode, γ, dist, 1:V, args...)
 
 # Define some other constructors
 SIS(
@@ -44,6 +56,9 @@ SIS(
     DimensionRange(1, Inf)
 )
 
+"""
+Construct SIS model.
+"""
 SIS(
     mode::InteractionSequence{Int},
     γ::Float64,
@@ -56,14 +71,7 @@ SIS(
     DimensionRange(1, K_outer)
 )
 
-# Allows construction via just number of vertices 
-SIS(
-    mode::InteractionSequence{Int},
-    γ::Float64,
-    dist::SemiMetric,
-    V::Int,
-    args...
-) = SIS(mode, γ, dist, 1:V, args...)
+
 
 
 function Base.show(

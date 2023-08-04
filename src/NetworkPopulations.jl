@@ -6,8 +6,6 @@ export draw_sample, draw_sample!
 include("aliases.jl")
 
 # Types
-# include("Types/PathDistributions.jl")
-# include("Types/MarkovModels.jl")
 include("Types/distributions.jl")
 
 # Data Processing Helpers
@@ -51,6 +49,7 @@ include("inter_network_models/samplers/legacy_constructors.jl")
 
 include("inter_network_models/summaries/predictives/missing_entry.jl")
 include("inter_network_models/summaries/predictives/posterior_predictive.jl")
+include("inter_network_models/summaries/predictives/prior_predictive.jl")
 include("inter_network_models/summaries/misc_summaries.jl")
 
 # Graph Models
