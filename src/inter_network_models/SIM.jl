@@ -36,6 +36,16 @@ SIM(
     DimensionRange(1, K_outer)
 )
 
+SIM(
+    mode::InteractionSequence{Int},
+    γ::Float64,
+    dist::SemiMetric,
+    V::Int,
+    args...
+) = SIM(mode, γ, dist, 1:V, args...)
+
+
+
 function Base.show(
     io::IO, model::SIM
 )

@@ -1,5 +1,5 @@
 using RecipesBase, Measures
-export InvMcmcSampler
+export InvMcmcSampler, draw_sample, draw_sample!
 
 """
     InvMcmcSampler(move::InvMcmcMove; kwargs...)
