@@ -281,7 +281,7 @@ Returns an iterator over all interaction sequences over the vertex set `V`, with
 function eachinterseq(
     V::UnitRange,
     K_inner::Int,
-    K_outer::Int) where {T<:Union{Int,String}}
+    K_outer::Int)
 
     return Base.Iterators.flatten(
         [Base.Iterators.product([eachpath(V, K_inner) for j = 1:k]...) for k = 1:K_outer]

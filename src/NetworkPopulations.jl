@@ -4,8 +4,8 @@ module NetworkPopulations
 include("aliases.jl")
 
 # Types
-include("Types/PathDistributions.jl")
-include("Types/MarkovModels.jl")
+# include("Types/PathDistributions.jl")
+# include("Types/MarkovModels.jl")
 include("Types/distributions.jl")
 
 # Data Processing Helpers

@@ -1,3 +1,4 @@
+using Distributions
 export ScaledBeta, TrGeometric, TrBinomial, StringCategorical, likelihood, log_likelihood
 export normalising_const
 ## Scaled beta distribution
