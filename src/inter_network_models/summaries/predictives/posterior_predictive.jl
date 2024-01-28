@@ -15,7 +15,15 @@ struct PosteriorPredictive{T<:Union{SisPosterior,SimPosterior}}
     end
 end
 
+"""
+    draw_sample!(out::InteractionSequenceSample{Int}, mcmc::InvMcmcSampler, predictive::PosteriorPredictive)
 
+Draw samples from the give posterior predictive and store samples in `out`. For each entry of `out` this will
+
+1. Sample (Sᵐ, γ) from posterior (approx. by sampling randomly from MCMC chain)
+2. Sample S ∼ SIS(Sᵐ, γ) 
+
+"""
 function draw_sample!(
     out::InteractionSequenceSample{Int},
     mcmc::InvMcmcSampler,
@@ -38,6 +46,15 @@ function draw_sample!(
     end
 end
 
+"""
+    draw_sample!(out::InteractionSequenceSample{Int}, mcmc::InvMcmcSampler, predictive::PosteriorPredictive)
+
+Draw samples from the give posterior predictive and store samples in `out`. For each entry of `out` this will
+
+1. Sample (Sᵐ, γ) from posterior (approx. by sampling randomly from MCMC chain)
+2. Sample chain (Sᵢ) where Sᵢ ∼ SIS(Sᵐ, γ) (number implied by size of `out[i]`) 
+
+"""
 function draw_sample!(
     out::Vector{InteractionSequenceSample{Int}}, # Note here we have vector of samples
     mcmc::InvMcmcSampler,
@@ -79,7 +96,7 @@ function draw_sample(
     mcmc::InvMcmcSampler,
     predictive::PosteriorPredictive;
     n_samples::Int=500,  # Number of draws from the posterior 
-    n_reps::Int=100  # Number of draws from predictive at sampled parameters 
+    n_reps::Int=100  # Number of draws from model at given parameters
 )
 
     if n_reps == 1
