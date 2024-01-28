@@ -1,5 +1,7 @@
 module NetworkPopulations
 
+export draw_sample, draw_sample!
+
 # Alises for referring to Paths/Interaction Sequences/Samples of Interaction Sequences (purely for readability)
 include("aliases.jl")
 
