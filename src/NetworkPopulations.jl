@@ -5,6 +5,9 @@ export draw_sample, draw_sample!
 # Alises for referring to Paths/Interaction Sequences/Samples of Interaction Sequences (purely for readability)
 include("aliases.jl")
 
+# General utils 
+include("utils.jl")
+
 # Types
 # include("Types/PathDistributions.jl")
 # include("Types/MarkovModels.jl")
@@ -16,7 +19,7 @@ include("Types/distributions.jl")
 # include("data_processing/PathSequences.jl")
 include("data_processing/multigraphs.jl")
 include("data_processing/string_to_int.jl")
-include("data_processing/high_order_heuristic.jl")
+include("data_processing/subpath_subseq_counts.jl")
 include("data_processing/remove_repeats.jl")
 include("data_processing/aggregate_graph.jl")
 include("data_processing/read_json.jl")

@@ -3,27 +3,33 @@ export PosteriorPredictive
 export dist_to_mode_sample, mean_inner_dim_sample, outer_dim_sample
 
 """
-A wrapper for the posterior predictive. 
+Posterior predictive, functioning as a wrapper around an `PosteriorMcmcOutput`.
 
-Note: the field `model_type` is used for constructing models.
+Construction: 
+
+        PosteriorPredictive(posterior_out::PosteriorMcmcOutput{T}) 
 """
-struct PosteriorPredictive{T<:PosteriorMcmcOutput}
-    posterior_out::T
-    model_tyle::DataType
-    function PosteriorPredictive(posterior_out::T) where {T<:PosteriorMcmcOutput}
-        new{T}(posterior, typeof(posterior_out.posterior.S_prior))
+struct PosteriorPredictive{T<:Union{SisPosterior,SimPosterior}}
+    posterior_out::PosteriorMcmcOutput{T}
+    model_type::DataType
+    function PosteriorPredictive(posterior_out::PosteriorMcmcOutput{T}) where {T<:Union{SisPosterior,SimPosterior}}
+        new{T}(posterior_out, typeof(posterior_out.posterior.S_prior))
     end
 end
 
+"""
+    draw_sample!(out::InterSeqSample{Int}, mcmc::InvMcmcSampler, predictive::PosteriorPredictive)
 
-
+Draw samples from posterior predictive via MCMC sampler and store in `out` in-place. This will draw a *single* sample 
+from the model for each sample from the posterior. 
+"""
 function draw_sample!(
-    out::Vector{Vector{Vector{Int}}},
+    out::InterSeqSample{Int},
     mcmc::InvMcmcSampler,
     predictive::PosteriorPredictive
 )
 
-    posterior_mcmc = predictive.posterior
+    posterior_mcmc = predictive.posterior_out
     S_sample = posterior_mcmc.S_sample
     γ_sample = posterior_mcmc.γ_sample
     posterior = posterior_mcmc.posterior
@@ -39,14 +45,20 @@ function draw_sample!(
     end
 end
 
+"""
+    draw_sample!(out::Vector{InterSeqSample{Int}}, mcmc::InvMcmcSampler, predictive::PosteriorPredictive)
+
+Draw samples from posterior predictive via MCMC sampler and store in `out` in-place. This will draw multiple samples
+from the model for each sample from the posterior. 
+"""
 function draw_sample!(
-    out::Vector{InteractionSequenceSample{Int}}, # Note difference here with prev function 
+    out::Vector{InterSeqSample{Int}}, # Note difference here with prev function 
     mcmc::InvMcmcSampler,
     predictive::PosteriorPredictive
 )
 
     # Aliases for info in given objects 
-    posterior_mcmc = predictive.posterior
+    posterior_mcmc = predictive.posterior_out
     S_sample = posterior_mcmc.S_sample
     γ_sample = posterior_mcmc.γ_sample
     posterior = posterior_mcmc.posterior
@@ -84,9 +96,9 @@ function draw_sample(
 )
 
     if n_reps == 1
-        out = InteractionSequenceSample{Int}(undef, n_samples)
+        out = InterSeqSample{Int}(undef, n_samples)
     else
-        out = [InteractionSequenceSample{Int}(undef, n_samples) for i in 1:n_reps]
+        out = [InterSeqSample{Int}(undef, n_samples) for i in 1:n_reps]
     end
 
     draw_sample!(out, mcmc, predictive)
@@ -123,7 +135,7 @@ function draw_sample_predictive(
 
     out = if n_reps == 1
         # Each entry of out is a single sample from the posterior
-        out = InteractionSequenceSample{Int}(undef, n_samples)
+        out = InterSeqSample{Int}(undef, n_samples)
         for i in eachindex(out)
             ind = rand(1:n_post_samples)
             model = predictive.model_type(S_sample[ind], γ_sample[ind], d, V, K_I, K_O)
@@ -132,7 +144,7 @@ function draw_sample_predictive(
         out
     else
         # Each entry of out is storage for single chain of samples from a model 
-        out = [InteractionSequenceSample{Int}(undef, n_samples) for i in 1:n_reps]
+        out = [InterSeqSample{Int}(undef, n_samples) for i in 1:n_reps]
         for i in eachindex(out)
             ind = rand(1:n_samples)
             model = predictive.model_type(S_sample[ind], γ_sample[ind], d, V, K_I, K_O)
@@ -144,17 +156,19 @@ function draw_sample_predictive(
     return out
 end
 
-# Distance to mode 
-# ----------------
+"""
+    dist_to_mode_sample!(out::Vector{Float64}, mcmc::InvMcmcSampler, predictive::PosteriorPredictive)
 
-
+Draw sample from posterior predictive distribution of distances to the mode and store in `out` in-place, with a single sample from model
+for each sample from posterior. 
+"""
 function dist_to_mode_sample!(
     out::Vector{Float64},
     mcmc::InvMcmcSampler,
     predictive::PosteriorPredictive
 )
 
-    posterior_mcmc = predictive.posterior
+    posterior_mcmc = predictive.posterior_out
     S_sample = posterior_mcmc.S_sample
     γ_sample = posterior_mcmc.γ_sample
     posterior = posterior_mcmc.posterior
@@ -171,13 +185,19 @@ function dist_to_mode_sample!(
     end
 end
 
+"""
+    dist_to_mode_sample!(out::Vector{Vector{Float64}}, mcmc::InvMcmcSampler, predictive::PosteriorPredictive)
+
+Draw sample from posterior predictive distribution of distances to the mode and store in `out` in-place, with mutiple samples from model
+for each sample from posterior.
+"""
 function dist_to_mode_sample!(
     out::Vector{Vector{Float64}},
     mcmc::InvMcmcSampler,
     predictive::PosteriorPredictive
 )
 
-    posterior_mcmc = predictive.posterior
+    posterior_mcmc = predictive.posterior_out
     S_sample = posterior_mcmc.S_sample
     γ_sample = posterior_mcmc.γ_sample
     posterior = posterior_mcmc.posterior
@@ -194,6 +214,17 @@ function dist_to_mode_sample!(
     end
 end
 
+"""
+    dist_to_mode_sample(mcmc::InvMcmcSampler, predictive::PosteriorPredictive; kwargs...)
+
+Draw sample from posterior predictive distribution of distances to the mode. This involves two steps 
+1. Draw parameters from posterior (mode and γ) 
+2. Draw sample from model at these parameter values and store distance to the mode for each sample 
+    
+This has also two keyword arguments 
+* `n_samples` = number of draws from the posterior (mode and γ combinations)
+* `n_reps` = number of samples from model at each combination of mode and γ
+"""
 function dist_to_mode_sample(
     mcmc::InvMcmcSampler,
     predictive::PosteriorPredictive;
@@ -212,13 +243,20 @@ function dist_to_mode_sample(
     return out
 end
 
+
+"""
+    mean_inner_dim_sample!(out::Vector{Float64}, mcmc::InvMcmcSampler, predictive::PosteriorPredictive)
+
+Draw sample from posterior predictive distribution of mean inner dimension (path length) and store in `out` in-place, with a single sample from model
+for each sample from posterior. 
+"""
 function mean_inner_dim_sample!(
     out::Vector{Float64},
     mcmc::InvMcmcSampler,
     predictive::PosteriorPredictive
 )
 
-    posterior_mcmc = predictive.posterior
+    posterior_mcmc = predictive.posterior_out
     S_sample = posterior_mcmc.S_sample
     γ_sample = posterior_mcmc.γ_sample
     posterior = posterior_mcmc.posterior
@@ -235,37 +273,19 @@ function mean_inner_dim_sample!(
     end
 end
 
-function outer_dim_sample!(
-    out::Vector{Int},
-    mcmc::InvMcmcSampler,
-    predictive::PosteriorPredictive
-)
+"""
+    mean_inner_dim_sample!(out::Vector{Vector{Float64}}, mcmc::InvMcmcSampler, predictive::PosteriorPredictive)
 
-    posterior_mcmc = predictive.posterior
-    S_sample = posterior_mcmc.S_sample
-    γ_sample = posterior_mcmc.γ_sample
-    posterior = posterior_mcmc.posterior
-    d = posterior.dist
-    V = posterior.V
-    K_I, K_O = (posterior.K_inner, posterior.K_outer)
-    n_samples = length(S_sample)
-    sample_store = [[Int[]]]
-
-    for i in eachindex(out)
-        ind = rand(1:n_samples)
-        model = predictive.model_type(S_sample[ind], γ_sample[ind], d, V, K_I, K_O)
-        draw_sample!(sample_store, mcmc, model)
-        out[i] = length(sample_store[1])
-    end
-end
-
+Draw sample from posterior predictive distribution of mean inner dimension (path length) and store in `out` in-place, with mutiple samples from model
+for each sample from posterior.
+"""
 function mean_inner_dim_sample!(
     out::Vector{Vector{Float64}},
     mcmc::InvMcmcSampler,
     predictive::PosteriorPredictive
 )
 
-    posterior_mcmc = predictive.posterior
+    posterior_mcmc = predictive.posterior_out
     S_sample = posterior_mcmc.S_sample
     γ_sample = posterior_mcmc.γ_sample
     posterior = posterior_mcmc.posterior
@@ -282,29 +302,18 @@ function mean_inner_dim_sample!(
     end
 end
 
-function outer_dim_sample!(
-    out::Vector{Vector{Int}},
-    mcmc::InvMcmcSampler,
-    predictive::PosteriorPredictive
-)
 
-    posterior_mcmc = predictive.posterior
-    S_sample = posterior_mcmc.S_sample
-    γ_sample = posterior_mcmc.γ_sample
-    posterior = posterior_mcmc.posterior
-    d = posterior.dist
-    V = posterior.V
-    K_I, K_O = (posterior.K_inner, posterior.K_outer)
-    n_samples = length(S_sample)
-    sample_store = [[Int[]] for i in 1:length(out[1])]
-    for i in eachindex(out)
-        ind = rand(1:n_samples)
-        model = predictive.model_type(S_sample[ind], γ_sample[ind], d, V, K_I, K_O)
-        draw_sample!(sample_store, mcmc, model)
-        out[i] = map(x -> length(x), sample_store)
-    end
-end
+"""
+    mean_inner_dim_sample(mcmc::InvMcmcSampler, predictive::PosteriorPredictive; kwargs...)
 
+Draw sample from posterior predictive distribution of mean inner dimension (path length). This involves two steps 
+1. Draw parameters from posterior (mode and γ) 
+2. Draw sample from model at these parameter values and store mean path length for each sample
+    
+This has also two keyword arguments 
+* `n_samples` = number of draws from the posterior (mode and γ combinations)
+* `n_reps` = number of samples from model at each combination of mode and γ
+"""
 function mean_inner_dim_sample(
     mcmc::InvMcmcSampler,
     predictive::PosteriorPredictive;
@@ -323,6 +332,78 @@ function mean_inner_dim_sample(
     return out
 end
 
+
+"""
+    outer_dim_sample!(out::Vector{Int}, mcmc::InvMcmcSampler, predictive::PosteriorPredictive)
+
+Draw sample from posterior predictive distribution of outer dimension (number of paths) and store in `out` in-place, with a single sample from model
+for each sample from posterior. 
+"""
+function outer_dim_sample!(
+    out::Vector{Int},
+    mcmc::InvMcmcSampler,
+    predictive::PosteriorPredictive
+)
+
+    posterior_mcmc = predictive.posterior_out
+    S_sample = posterior_mcmc.S_sample
+    γ_sample = posterior_mcmc.γ_sample
+    posterior = posterior_mcmc.posterior
+    d = posterior.dist
+    V = posterior.V
+    K_I, K_O = (posterior.K_inner, posterior.K_outer)
+    n_samples = length(S_sample)
+    sample_store = [[Int[]]]
+
+    for i in eachindex(out)
+        ind = rand(1:n_samples)
+        model = predictive.model_type(S_sample[ind], γ_sample[ind], d, V, K_I, K_O)
+        draw_sample!(sample_store, mcmc, model)
+        out[i] = length(sample_store[1])
+    end
+end
+
+
+"""
+    mean_inner_dim_sample!(out::Vector{Vector{Int}}, mcmc::InvMcmcSampler, predictive::PosteriorPredictive)
+
+Draw sample from posterior predictive distribution of outer dimension (number of paths) and store in `out` in-place, with mutiple samples from model
+for each sample from posterior.
+"""
+function outer_dim_sample!(
+    out::Vector{Vector{Int}},
+    mcmc::InvMcmcSampler,
+    predictive::PosteriorPredictive
+)
+
+    posterior_mcmc = predictive.posterior_out
+    S_sample = posterior_mcmc.S_sample
+    γ_sample = posterior_mcmc.γ_sample
+    posterior = posterior_mcmc.posterior
+    d = posterior.dist
+    V = posterior.V
+    K_I, K_O = (posterior.K_inner, posterior.K_outer)
+    n_samples = length(S_sample)
+    sample_store = [[Int[]] for i in 1:length(out[1])]
+    for i in eachindex(out)
+        ind = rand(1:n_samples)
+        model = predictive.model_type(S_sample[ind], γ_sample[ind], d, V, K_I, K_O)
+        draw_sample!(sample_store, mcmc, model)
+        out[i] = map(x -> length(x), sample_store)
+    end
+end
+
+"""
+    outer_dim_sample(mcmc::InvMcmcSampler, predictive::PosteriorPredictive; kwargs...)
+
+Draw sample from posterior predictive distribution of outer dimension (number of paths). This involves two steps 
+1. Draw parameters from posterior (mode and γ) 
+2. Draw sample from model at these parameter values and store number of paths in each sample
+    
+This has also two keyword arguments 
+* `n_samples` = number of draws from the posterior (mode and γ combinations)
+* `n_reps` = number of samples from model at each combination of mode and γ
+"""
 function outer_dim_sample(
     mcmc::InvMcmcSampler,
     predictive::PosteriorPredictive;
