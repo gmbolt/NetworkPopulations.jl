@@ -70,6 +70,6 @@ include("graph_models/SNF/samplers/SNF_posterior_sampler.jl")
 
 # Hollywood model
 # ===============
-include("Types/hollywood_model.jl")
+include("types/hollywood_model.jl")
 
 end
