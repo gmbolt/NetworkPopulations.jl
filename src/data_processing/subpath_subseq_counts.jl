@@ -1,7 +1,7 @@
 """
-Functions to get summarise the distribution of subsequences appearing in interaction 
-networks or samples of interaction networks, e.g. to get the average number of times 
-this subsequence appears in an observation, or the proportion of interaction networks in which 
+Functions to summarise the distribution of subsequences/subpaths appearing in interaction 
+networks or samples of interaction sequences, e.g. to get the average number of times 
+a given subsequence appears in an observation, or the proportion of interaction sequences in which 
 a given subsequence appears (at least once).
 """
 
@@ -13,19 +13,15 @@ export get_unique_subpaths!, get_unique_subpaths, get_unique_subpath_counts!, ge
 export subseq_isin, subpath_isin
 export dict_rank
 
-# TODO - make functions to get the count of subsequences in an interaction network, and then in a sample of networks
-#      - Try and make this such that each subsequence will have a vector of counts, that can then be averaged to get 
-#        the average count of this path in observations 
-#      - Should actually be able to recover the old function by doing a count>0 on the vectors 
-#      - Could possibly pass in a collection of subsequences to consider, or the vertex set so we can infer all possible 
-#        subsequences and then have these make up the keys of a dictionary. This will mean some subsequences will have 
-#        zero count. Could then have an option to drop zero count subsequences
-#      - Do the same for subpaths  
+# TODO - Correct also the functions for subpaths 
+
+# subsequences
+# ------------
 
 """
     get_subseqs!(out::Dict{Vector{T},Int}, S::InteractionSequence{T}, r::Int) 
 
-Augment dictionary `out` with counts of length `r` subsequences appearing in `S`.
+Augment `out` with counts of length `r` subsequences appearing in `S`.
 """
 function get_subseqs!(
     out::Dict{Vector{T},Int},
@@ -41,14 +37,18 @@ function get_subseqs!(
 end 
 
 """
-    get_subseqs(S::InteractionSequence{T}, r::Int; kwargs...) 
+    get_subseqs(S, r; drop_zero, vertex_set) 
 
-Get dict with counts of length `r` subsequences appearing in `S`.
+Get dictionary with counts of length `r` subsequences appearing in `S`.
 
-This has following key-word arguments:
+# Arguments
 
-* `drop_zero::Bool` (default: `true`) = whether to drop subsequences with zero count
-* `vertex_set::Vector{T} where {T<:Union{Int,String}}` (default: unique values in `S`) = underlying vertex set. Will determine the possible subsequences.
+Where `T <: Union{Int,String}` we have 
+
+- `S::InteractionSequence{T}`: an interaction sequence 
+- `r::Int`: length of subsequences to count 
+- `drop_zero::Bool=true`: whether to drop subsequences with zero count
+- `vertex_set::Vector{T}=unique(vcat(S...))`: underlying vertex set, will determine the possible subsequences. Defaults to unique values seen in `S`.
 """
 function get_subseqs(
     S::InteractionSequence{T}, 
@@ -73,16 +73,19 @@ end
 
 
 """ 
-    get_subseq_counts(
-        data::InterSeqSample{T}, r::Int; 
-        vertex_set::Vector{T}=unique(vcat([vcat(S_i...) for S_i in data]...))
-        ) where {T<:Union{Int,String}}
+    get_subseq_counts(data, r; vertex_set) 
 
-Given sample of interaction networks, obtains subseq counts in each. Returns dict mapping paths to vectors of counts, with the latter having length equal to the number of interaction networks. 
+Given sample of interaction sequences, obtain subseq counts in each and return these in a dictionary.
 
-Keyword arguments:
+The returned dictionary maps paths to vectors of counts, with the latter having length equal to the number of interaction sequences in `data`. 
 
-* `vertex_set` (default = all vertices seen `data`) = underlying vertex set, will determine the keys of output dict.
+# Arguments 
+
+With `T <: Union{Int,String}` we have
+
+- `data::InteractionSequenceSample{T}`: sample of interaction sequences 
+- `r::Int`: length of subsequences to count 
+- `vertex_set::Vector{T}=unique(vcat([vcat(S_i...) for S_i in data]...))`: underlying vertex set, will determine the keys of output dict. Defaults to unique values seen in `data`.
 """
 function get_subseq_counts(
     data::InterSeqSample{T}, 
@@ -124,7 +127,7 @@ end
 """
     get_unique_subseqs(S::InteractionSequence{T}, r::Int) 
 
-Get the set of unique length `r` subsequences appearing in `S` (of type `Set`)
+Get the `Set` of unique length `r` subsequences appearing in `S`.
 """
 function get_unique_subseqs(S::InteractionSequence{T}, r::Int) where {T<:Union{Int,String}}
     # Get subseq counts (excl. zero count subseqs)
@@ -136,13 +139,17 @@ end
 
 
 """
-    get_unique_subseq_counts(
-        data::InteractionSequenceSample{T}, 
-        r::Int; 
-        vertex_set::Vector{T}=unique(vcat([vcat(S_i...) for S_i in data]...))
-        ) where {T<:Union{Int,String}}
+    get_unique_subseq_counts(data, r; vertex_set)
 
-Given a sample of interaction networks returns a dict detailing, for a given path, the number of interaction networks it appears in at least once. 
+Given a sample of interaction sequences, return a dictionary detailing, for a given subsequence, the number of interaction sequences it appears in at least once.
+
+# Arguments
+
+Where `T<:Union{Int,String}` we have 
+
+- `data::InteractionSequenceSample{T}`: sample of interaction sequences 
+- `r::Int`: length of subsequences to count 
+- `vertex_set::Vector{T}=unique(vcat([vcat(S_i...) for S_i in data]...))`: underlying vertex set, will determine the keys of output dict. Defaults to unique values seen in `data`.
 """
 function get_unique_subseq_counts(
     data::InteractionSequenceSample{T}, 
@@ -150,7 +157,7 @@ function get_unique_subseq_counts(
     vertex_set::Vector{T}=unique(vcat([vcat(S_i...) for S_i in data]...))
     ) where {T<:Union{Int,String}}
     
-    # Get subseq counts for each interaction network in data 
+    # Get subseq counts for each interaction sequence in data 
     dict_subseq_counts = get_subseq_counts(data, r, vertex_set=vertex_set)
 
     # Now we loop over paths and obtain number of networks wherein it appears 
@@ -165,13 +172,17 @@ end
 
 
 """
-    get_unique_subseq_proportions(
-        data::InteractionSequenceSample{T}, 
-        r::Int; 
-        vertex_set::Vector{T}=unique(vcat([vcat(S_i...) for S_i in data]...))
-        ) where {T<:Union{Int,String}}
+    get_unique_subseq_proportions(data, r; vertex_set)
 
-Given a sample of interaction networks returns a dict detailing, for a given path, the proportion of interaction networks it appears in at least once. 
+Given a sample of interaction sequences, return a dictionary detailing, for a given subsequence, the proportion of interaction sequences it appears in at least once. 
+
+# Arguments
+
+Where `T<:Union{Int,String}` we have 
+
+- `data::InteractionSequenceSample{T}`: sample of interaction sequences 
+- `r::Int`: length of subsequences to count 
+- `vertex_set::Vector{T}=unique(vcat([vcat(S_i...) for S_i in data]...))`: underlying vertex set, will determine the keys of output dict. Defaults to unique values seen in `data`.
 """
 function get_unique_subseq_proportions(
     data::InteractionSequenceSample{T}, 
@@ -179,7 +190,7 @@ function get_unique_subseq_proportions(
     vertex_set::Vector{T}=unique(vcat([vcat(S_i...) for S_i in data]...))
     ) where {T<:Union{Int,String}}
 
-    # Get subseq counts for each interaction network in data 
+    # Get subseq counts for each interaction sequence in data 
     dict_subseq_counts = get_subseq_counts(data, r, vertex_set=vertex_set)
 
     # Sample size (number of networks) 
@@ -199,7 +210,7 @@ end
 """
     subseq_isin(S::InteractionSequence{T}, x::Vector{T}) where {T<:Union{Int,String}}
 
-Test if subsequence appears in interaction network `S`. Returns `Bool`.
+Return boolean resulting from testing if subsequence `x` appears in interaction sequence `S`.
 """
 function subseq_isin(S::InteractionSequence{T}, x::Vector{T}) where {T<:Union{Int,String}}
     r = length(x)
@@ -216,9 +227,9 @@ end
 
 
 """
-    subseq_isin(S::InteractionSequence{T}, x::Vector{T}) where {T<:Union{Int,String}}
+    subseq_isin(data::InteractionSequenceSample{T}, x::Vector{T}) where {T<:Union{Int,String}}
 
-Test if subsequence appears in sample of interaction networks. Returns vector of `Bool`.
+Return boolean resulting from testing if subsequence `x` appears in sample of interaction sequences `data`.
 """
 function subseq_isin(data::InteractionSequenceSample{T}, x::Vector{T}) where {T<:Union{Int,String}}
     out = Vector{Bool}()
@@ -230,7 +241,6 @@ end
 
 # Subpaths 
 # --------
-
 
 """
     get_subpaths!(out::Dict{Vector{T},Int}, S::InteractionSequence{T}, r::Int) 
@@ -253,14 +263,18 @@ function get_subpaths!(
 end 
 
 """
-    get_subpaths(S::InteractionSequence{T}, r::Int; kwargs...) 
+    get_subpaths(S, r; drop_zero, vertex_set) 
 
-Get dict with counts of length `r` subpaths appearing in `S`.
+Get dictionary with counts of length `r` subpaths appearing in `S`.
 
-This has following key-word arguments:
+# Arguments
 
-* `drop_zero::Bool` (default: `true`) = whether to drop subpaths with zero count
-* `vertex_set::Vector{T} where {T<:Union{Int,String}}` (default: unique values in `S`) = underlying vertex set. Will determine the possible subpaths.
+Where `T<:Union{Int,String}` we have 
+
+- `S::InteractionSequence{T}`: an interaction sequence 
+- `r::Int`: length of subpaths to count
+- `drop_zero::Bool=true`: whether to drop subpaths with zero count
+- `vertex_set::Vector{T}=unique(vcat(S...))`: underlying vertex set, will determine the possible subsequences. Defaults to unique values seen in `S`.
 """
 function get_subpaths(
     S::InteractionSequence{T}, 
@@ -283,16 +297,19 @@ function get_subpaths(
 end  
 
 """ 
-    get_subpath_counts(
-        data::InterSeqSample{T}, r::Int; 
-        vertex_set::Vector{T}=unique(vcat([vcat(S_i...) for S_i in data]...))
-        ) where {T<:Union{Int,String}}
+get_subseq_counts(data, r; vertex_set) 
 
-Given sample of interaction networks, obtains subpath counts in each. Returns dict mapping paths to vectors of counts, with the latter having length equal to the number of interaction networks. 
+Given sample of interaction sequences, obtain subpath counts in each and return these in a dictionary.
 
-Keyword arguments:
+The returned dictionary maps paths to vectors of counts, with the latter having length equal to the number of interaction sequences in `data`. 
 
-* `vertex_set` (default = all vertices seen `data`) = underlying vertex set, will determine the keys of output dict.
+# Arguments 
+
+With `T <: Union{Int,String}` we have
+
+- `data::InteractionSequenceSample{T}`: sample of interaction sequences 
+- `r::Int`: length of subpaths to count 
+- `vertex_set::Vector{T}=unique(vcat([vcat(S_i...) for S_i in data]...))`: underlying vertex set, will determine the keys of output dict. Defaults to unique values seen in `data`.
 """
 function get_subpath_counts(
     data::InterSeqSample{T}, 
@@ -330,68 +347,96 @@ function get_subpath_counts(
 
 end 
 
-function get_unique_subpaths!(
-    out::Set{Vector{T}}, 
-    S::InteractionSequence{T}, 
-    r::Int
-    ) where {T<:Union{Int,String}}
-    for path in S 
-        ind = 1:r 
-        n = length(path)
-        for i in 1:(n-r+1)
-            push!(out, path[ind])
-            ind = ind .+ 1
-        end 
-    end 
-end 
+"""
+    get_unique_subpaths(S::InteractionSequence{T}, r::Int) 
 
+Get the `Set` of unique length `r` subpaths appearing in `S`.
+"""
 function get_unique_subpaths(
     S::InteractionSequence{T}, 
     r::Int
     ) where {T<:Union{Int,String}}
-    out = Set{Vector{T}}()
-    get_unique_subpaths!(out, S, r)
-    return out
+
+    # Get subpath counts (excl. zero counts)
+    dict_subpath_counts = get_subpaths(S, r)
+    
+    # Keys of this dict will be unique subseqs appearing in S 
+    return Set(keys(dict_subpath_counts))
 end
 
 
+"""
+    get_unique_subpath_counts(data, r; vertex_set)
 
-function get_unique_subpath_counts!(
-    out::Dict{Vector{T},S}, 
-    data::InteractionSequenceSample{T},
-    r::Int
-    ) where {T<:Union{Int,String},S<:Real}
+Given a sample of interaction sequences, return a dictionary detailing, for a given subpath, the number of interaction sequences it appears in at least once.
 
-    uniq_paths = Set{Vector{T}}()
-    for x in data 
-        empty!(uniq_paths)
-        get_unique_subpaths!(uniq_paths, x, r)
-        for path in uniq_paths
-            out[path] = get(out, path, 0) + 1
-        end 
+# Arguments
+
+Where `T<:Union{Int,String}` we have 
+
+- `data::InteractionSequenceSample{T}`: sample of interaction sequences 
+- `r::Int`: length of supaths to count 
+- `vertex_set::Vector{T}=unique(vcat([vcat(S_i...) for S_i in data]...))`: underlying vertex set, will determine the keys of output dict. Defaults to unique values seen in `data`.
+"""
+function get_unique_supath_counts(
+    data::InteractionSequenceSample{T}, 
+    r::Int; 
+    vertex_set::Vector{T}=unique(vcat([vcat(S_i...) for S_i in data]...))
+    ) where {T<:Union{Int,String}}
+    
+    # Get subpath counts for each interaction sequence in data 
+    dict_subpath_counts = get_subpath_counts(data, r, vertex_set=vertex_set)
+
+    # Now we loop over paths and obtain number of networks wherein it appears 
+    # at least once...
+    out = Dict{Vector{T}, Int}()  # For output 
+    for (path, counts_vec) in dict_subpath_counts
+        out[path] = sum(counts_vec .> 0) 
     end 
-end 
 
-function get_unique_subpath_counts(data::InteractionSequenceSample{T}, r::Int) where {T<:Union{Int,String}}
-    out = Dict{Vector{T},Int}()
-    get_unique_subpath_counts!(out, data, r)
     return out
 end 
 
-function get_unique_subpath_proportions(data::InteractionSequenceSample{T}, r::Int) where {T<:Union{Int,String}}
-    out = Dict{Vector{T},Float64}()
+
+"""
+    get_unique_subpath_proportions(data, r; vertex_set)
+
+Given a sample of interaction sequences, return a dictionary detailing, for a given subpath, the proportion of interaction sequences it appears in at least once. 
+
+# Arguments
+
+Where `T<:Union{Int,String}` we have 
+
+- `data::InteractionSequenceSample{T}`: sample of interaction sequences 
+- `r::Int`: length of subpaths to count 
+- `vertex_set::Vector{T}=unique(vcat([vcat(S_i...) for S_i in data]...))`: underlying vertex set, will determine the keys of output dict. Defaults to unique values seen in `data`.
+"""
+function get_unique_subpath_proportions(
+    data::InteractionSequenceSample{T}, 
+    r::Int; 
+    vertex_set::Vector{T}=unique(vcat([vcat(S_i...) for S_i in data]...))
+    ) where {T<:Union{Int,String}}
+
+    # Get subpath counts for each interaction sequence in data 
+    dict_subpath_counts = get_subpath_counts(data, r, vertex_set=vertex_set)
+
+    # Sample size (number of networks) 
     n = length(data)
-    get_unique_subpath_counts!(out, data, r)
-    for key in keys(out)
-        out[key] /= n 
+
+    # Now we loop over paths and obtain proportion of networks wherein it appears 
+    # at least once...
+    out = Dict{Vector{T}, Float64}()  # For output 
+    for (path, counts_vec) in dict_subpath_counts
+        out[path] = sum(counts_vec .> 0) / n
     end 
+
     return out
 end 
 
 """
     subpath_isin(S::InteractionSequence{T}, x::Vector{T}) where {T<:Union{Int,String}}
 
-Test if subpath appears in interaction network `S`. Returns `Bool`.
+Return `true` if supath `x` appears in interaction sequence `S`.
 """
 function subpath_isin(S::InteractionSequence{T}, x::Vector{T}) where {T<:Union{Int,String}}
     r = length(x)
@@ -411,7 +456,7 @@ end
 """
     subpath_isin(S::InteractionSequence{T}, x::Vector{T}) where {T<:Union{Int,String}}
 
-Test if subpath appears in sample of interaction networks. Returns vector of `Bool`.
+Return `true` if subpath `x` appears in sample of interaction sequences `data`.
 """
 function subpath_isin(data::InteractionSequenceSample{T}, x::Vector{T}) where {T<:Union{Int,String}}
     out = Vector{Bool}()
