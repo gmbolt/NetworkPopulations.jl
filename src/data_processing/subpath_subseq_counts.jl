@@ -13,8 +13,6 @@ export get_unique_subpaths!, get_unique_subpaths, get_unique_subpath_counts!, ge
 export subseq_isin, subpath_isin
 export dict_rank
 
-# TODO - Correct also the functions for subpaths 
-
 # subsequences
 # ------------
 
