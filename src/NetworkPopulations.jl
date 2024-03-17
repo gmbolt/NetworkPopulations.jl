@@ -11,7 +11,7 @@ include("utils.jl")
 # Types
 # include("Types/PathDistributions.jl")
 # include("Types/MarkovModels.jl")
-include("Types/distributions.jl")
+include("types/distributions.jl")
 
 # Data Processing Helpers
 # include("data_processing/EdgeCounts.jl")
