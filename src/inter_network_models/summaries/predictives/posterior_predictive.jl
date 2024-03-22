@@ -1,6 +1,7 @@
-using StatsBase
+using StatsBase, ProgressMeter
 export PosteriorPredictive
 export dist_to_mode_sample, mean_inner_dim_sample, outer_dim_sample
+export draw_sample_predictive
 
 """
 Posterior predictive, functioning as a wrapper around an `PosteriorMcmcOutput`.
@@ -121,9 +122,17 @@ function draw_sample_predictive(
     mcmc::InvMcmcSampler,
     posterior_out::PosteriorMcmcOutput;
     n_samples::Int=500,  # Number of draws from the posterior 
-    n_reps::Int=100  # Number of draws from predictive at sampled parameters 
+    n_reps::Int=100,  # Number of draws from predictive at sampled parameters 
+    loading_bar::Bool=false # Whether to print a loading bar
 )
 
+    # If printing loading bar, get progress meter 
+    if loading_bar
+        iter = Progress(
+            n_samples, # How many iters 
+            "Sampling from posterior predictive....")  # Loading bar. Minimum update interval: 1 second
+    end
+    
     # Aliases
     S_sample = posterior_out.S_sample
     γ_sample = posterior_out.γ_sample
@@ -133,6 +142,9 @@ function draw_sample_predictive(
     K_I, K_O = (posterior.K_inner, posterior.K_outer)
     n_post_samples = length(S_sample)
 
+    # Instantiate predictive 
+    predictive = PosteriorPredictive(posterior_out)
+
     out = if n_reps == 1
         # Each entry of out is a single sample from the posterior
         out = InterSeqSample{Int}(undef, n_samples)
@@ -140,7 +152,11 @@ function draw_sample_predictive(
             ind = rand(1:n_post_samples)
             model = predictive.model_type(S_sample[ind], γ_sample[ind], d, V, K_I, K_O)
             draw_sample!(view(out, i:i), mcmc, model)
+            if loading_bar
+                next!(iter)
+            end
         end
+
         out
     else
         # Each entry of out is storage for single chain of samples from a model 
@@ -149,6 +165,9 @@ function draw_sample_predictive(
             ind = rand(1:n_samples)
             model = predictive.model_type(S_sample[ind], γ_sample[ind], d, V, K_I, K_O)
             draw_sample!(out[i], mcmc, model)
+            if loading_bar
+                next!(iter)
+            end
         end
         out
     end
